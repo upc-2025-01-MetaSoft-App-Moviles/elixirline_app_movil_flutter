@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'features/app/presentation/pages/main_page.dart';
+import 'features/app/presentation/pages/app_wrapper.dart';
 import 'core/themes/app_theme.dart';
 
 void main() {
@@ -10,12 +10,12 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {                    
     return MaterialApp(
-      title: 'Gestión de Insumos',
+      title: 'Elixir Line - Gestión Vitivinícola',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const MainPage(),
+      home: const AppWrapper(),
     );
   }
 }
