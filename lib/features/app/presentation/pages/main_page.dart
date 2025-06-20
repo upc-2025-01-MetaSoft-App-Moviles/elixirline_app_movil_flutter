@@ -3,6 +3,8 @@ import '../../../supply-management/presentation/pages/supply_list_page.dart';
 import '../../../supply-management/presentation/pages/supply_form_page.dart';
 import '../../../supply-management/presentation/pages/supply_usage_page.dart';
 import '../../../supply-management/presentation/pages/supply_history_page.dart';
+import '../../../winemaking-process/presentation/pages/wine_batch_list_page.dart';
+import '../../../winemaking-process/presentation/pages/wine_batch_detail_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -15,12 +17,14 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   String? _editingSupplyId;
   String? _preselectedSupplyId;
+  String? _selectedBatchId;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
       _editingSupplyId = null;
       _preselectedSupplyId = null;
+      _selectedBatchId = null;
     });
   }
 
@@ -53,6 +57,20 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+  void _navigateToWineBatchDetail(String batchId) {
+    setState(() {
+      _selectedIndex = 4; // Wine batch detail
+      _selectedBatchId = batchId;
+    });
+  }
+
+  void _navigateToWineBatchList() {
+    setState(() {
+      _selectedIndex = 5; // Wine batch list
+      _selectedBatchId = null;
+    });
+  }
+
   Widget _getSelectedPage() {
     switch (_selectedIndex) {
       case 0:
@@ -77,6 +95,19 @@ class _MainPageState extends State<MainPage> {
         return SupplyHistoryPage(
           onBack: _navigateToSupplyList,
         );
+      case 4:
+        if (_selectedBatchId != null) {
+          return WineBatchDetailPage(
+            batchId: _selectedBatchId!,
+            onBack: _navigateToWineBatchList,
+            onAddStage: () {
+              // TODO: Implementar navegación a agregar etapa
+            },
+          );
+        }
+        return _navigateToWineBatchListWidget();
+      case 5:
+        return _navigateToWineBatchListWidget();
       default:
         return SupplyListPage(
           onAddSupply: _navigateToAddSupply,
@@ -86,21 +117,36 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  Widget _navigateToWineBatchListWidget() {
+    return WineBatchListPage(
+      onBatchSelected: _navigateToWineBatchDetail,
+      onAddBatch: () {
+        // TODO: Implementar navegación a agregar lote
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _getSelectedPage(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        currentIndex: _selectedIndex >= 4 ? 4 : _selectedIndex,
+        onTap: (index) {
+          if (index == 4) {
+            _navigateToWineBatchList();
+          } else {
+            _onItemTapped(index);
+          }
+        },
         backgroundColor: const Color(0xFF8B0000),
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white70,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Inicio',
+            label: 'Insumos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add),
@@ -113,6 +159,10 @@ class _MainPageState extends State<MainPage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Historial',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wine_bar),
+            label: 'Vinificación',
           ),
         ],
       ),
