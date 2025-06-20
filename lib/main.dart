@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'features/app/presentation/pages/main_page.dart';
+import 'core/themes/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,26 +12,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mi Nueva App',
+      title: 'Gestión de Insumos',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
-      home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('¡Hola mundo!'),
-      ),
+      theme: AppTheme.lightTheme,
+      home: const MainPage(),
     );
   }
 }
