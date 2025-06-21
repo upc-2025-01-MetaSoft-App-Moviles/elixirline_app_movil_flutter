@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'features/fieldworkers_management/presentation/screens/worker_list_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,26 +11,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mi Nueva App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
-      home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('¡Hola mundo!'),
-      ),
+      title: 'ElixirLine Móvil',
+      theme: ThemeData(primarySwatch: Colors.green),
+      home: const WorkerListScreen(), // ← esta es la clave
     );
   }
 }
