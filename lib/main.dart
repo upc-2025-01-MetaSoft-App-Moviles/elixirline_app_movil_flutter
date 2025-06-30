@@ -1,3 +1,4 @@
+import 'package:elixirline_app_movil_flutter/core/shared/main_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -9,27 +10,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mi Nueva App',
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
-      home: const HomePage(),
+      home: MainPage(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('¡Hola mundo!'),
-      ),
-    );
-  }
-}
