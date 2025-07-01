@@ -1,4 +1,5 @@
 
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/wine_batch.dart';
 
 /*
 {
@@ -30,6 +31,31 @@ class WineBatchDTO {
     required this.grapeVariety,
     required this.createdBy,
   });
+
+  factory WineBatchDTO.fromJson(Map<String, dynamic> json) {
+    return WineBatchDTO(
+      id: json['id'] as String,
+      campaignId: json['campaignId'] as String,
+      internalCode: json['internalCode'] as String,
+      campaign: json['campaign'] as String,
+      vineyard: json['vineyard'] as String,
+      grapeVariety: json['grapeVariety'] as String,
+      createdBy: json['createdBy'] as String,
+    );
+  }
+
+  WineBatch toDomain() {
+    return WineBatch(
+      id: id,
+      campaignId: campaignId,
+      internalCode: internalCode,
+      campaign: campaign,
+      vineyard: vineyard,
+      grapeVariety: grapeVariety,
+      createdBy: createdBy,
+    );
+  }
+
   
 }
 

@@ -1,34 +1,39 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/wine_batch_dto.dart';
 import 'package:http/http.dart' as http;
 
 
 class WineBatchService {
   final String _baseUrl;
 
-  WineBatchService(String resourceEndpoint)
-      : _baseUrl = 'https://elixirline-api.com/$resourceEndpoint';
+  WineBatchService(this._baseUrl);
 
-  Future<List<dynamic>> getWineBatches() {
+  Future<List<WineBatchDTO>> getWineBatches() {
     return http
         .get(Uri.parse(_baseUrl))
         .then((response) {
-          final List<dynamic> maps = jsonDecode(response.body);
-          return maps;
+          if (response.statusCode == HttpStatus.ok) {
+            final List<dynamic> maps = jsonDecode(response.body);
+            return maps.map((e) => WineBatchDTO.fromJson(e)).toList();
+          } else {
+            throw HttpException("Error fetching wine batches: ${response.statusCode}");
+          }
         })
         .catchError((error) {
           throw Exception("Unexpected error in getWineBatches: $error");
         });
+   
   }
 
-  Future<dynamic> getWineBatchById(int id) {
+  Future<WineBatchDTO> getWineBatchById(int id) {
     return http
         .get(Uri.parse("$_baseUrl/$id"))
         .then((response) {
           if (response.statusCode == HttpStatus.ok) {
             final map = jsonDecode(response.body);
-            return map;
+            return WineBatchDTO.fromJson(map);
           } else {
             throw HttpException("Error fetching wine batch: ${response.statusCode}");
           }
@@ -71,4 +76,7 @@ class WineBatchService {
           throw Exception("Unexpected error in updateWineBatch: $error");
         });
   }
+
 }
+
+
