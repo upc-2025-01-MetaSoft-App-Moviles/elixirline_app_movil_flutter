@@ -1,4 +1,3 @@
-
 /*
 {
   "batchId": "string",
@@ -19,6 +18,8 @@
   "justification": "string"
 }
 */
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/correction_stage.dart';
+
 class CorrectionStageDTO {
   final String batchId;
   final String stageType;
@@ -55,5 +56,46 @@ class CorrectionStageDTO {
     required this.so2AddedMgL,
     required this.justification,
   });
-  
+
+  factory CorrectionStageDTO.fromJson(Map<String, dynamic> json) {
+    return CorrectionStageDTO(
+      batchId: json['batchId'] ?? '',
+      stageType: json['stageType'] ?? '',
+      startedAt: json['startedAt'] ?? '',
+      completedAt: json['completedAt'] ?? '',
+      completedBy: json['completedBy'] ?? '',
+      observations: json['observations'] ?? '',
+      isCompleted: json['isCompleted'] ?? false,
+      initialSugarLevel: (json['initialSugarLevel'] as num).toDouble(),
+      finalSugarLevel: (json['finalSugarLevel'] as num).toDouble(),
+      addedSugarKg: (json['addedSugarKg'] as num).toDouble(),
+      finalPh: (json['finalPh'] as num).toDouble(),
+      initialPh: (json['initialPh'] as num).toDouble(),
+      acidType: json['acidType'] ?? '',
+      acidAddedGl: (json['acidAddedGl'] as num).toDouble(),
+      so2AddedMgL: (json['so2AddedMgL'] as num).toDouble(),
+      justification: json['justification'] ?? '',
+    );
+  }
+
+  CorrectionStage toDomain() {
+    return CorrectionStage(
+      batchId: batchId,
+      stageType: stageType,
+      startedAt: startedAt,
+      completedAt: completedAt,
+      completedBy: completedBy,
+      observations: observations,
+      isCompleted: isCompleted,
+      initialSugarLevel: initialSugarLevel,
+      finalSugarLevel: finalSugarLevel,
+      addedSugarKg: addedSugarKg,
+      finalPh: finalPh,
+      initialPh: initialPh,
+      acidType: acidType,
+      acidAddedGl: acidAddedGl,
+      so2AddedMgL: so2AddedMgL,
+      justification: justification,
+    );
+  }
 }

@@ -23,6 +23,8 @@
   "changeReason": "string"
 }
 */
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/filtration_stage.dart';
+
 class FiltrationStageDTO {
   final String batchId;
   final String stageType;
@@ -65,5 +67,54 @@ class FiltrationStageDTO {
     required this.filterChanged,
     required this.changeReason,
   });
- 
+
+
+  factory FiltrationStageDTO.fromJson(Map<String, dynamic> json) {
+    return FiltrationStageDTO(
+      batchId: json['batchId'] ?? '',
+      stageType: json['stageType'] ?? '',
+      startedAt: json['startedAt'] ?? '',
+      completedAt: json['completedAt'] ?? '',
+      completedBy: json['completedBy'] ?? '',
+      observations: json['observations'] ?? '',
+      isCompleted: json['isCompleted'] ?? false,
+      filterType: json['filterType'] ?? '',
+      filtrationType: json['filtrationType'] ?? '',
+      filterMedia: json['filterMedia'] ?? '',
+      poreMicrons: (json['poreMicrons'] ?? 0).toDouble(),
+      turbidityBefore: (json['turbidityBefore'] ?? 0).toDouble(),
+      turbidityAfter: (json['turbidityAfter'] ?? 0).toDouble(),
+      temperature: (json['temperature'] ?? 0).toDouble(),
+      pressureBars: (json['pressureBars'] ?? 0).toDouble(),
+      filteredVolumeLiters: (json['filteredVolumeLiters'] ?? 0).toDouble(),
+      isSterile: json['isSterile'] ?? false,
+      filterChanged: json['filterChanged'] ?? false,
+      changeReason: json['changeReason'] ?? '',
+    );
+  }
+
+  FiltrationStage toDomain() {
+    return FiltrationStage(
+      batchId: batchId,
+      stageType: stageType,
+      startedAt: startedAt,
+      completedAt: completedAt,
+      completedBy: completedBy,
+      observations: observations,
+      isCompleted: isCompleted,
+      filterType: filterType,
+      filtrationType: filtrationType,
+      filterMedia: filterMedia,
+      poreMicrons: poreMicrons,
+      turbidityBefore: turbidityBefore,
+      turbidityAfter: turbidityAfter,
+      temperature: temperature,
+      pressureBars: pressureBars,
+      filteredVolumeLiters: filteredVolumeLiters,
+      isSterile: isSterile,
+      filterChanged: filterChanged,
+      changeReason: changeReason,
+    );
+  }
+
 }

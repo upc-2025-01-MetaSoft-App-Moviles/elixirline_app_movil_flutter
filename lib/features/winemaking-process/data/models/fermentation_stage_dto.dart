@@ -20,6 +20,8 @@
 }
 */
 
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/fermentation_stage.dart';
+
 class FermentationStageDTO {
   final String batchId;
   final String stageType;
@@ -56,5 +58,48 @@ class FermentationStageDTO {
     required this.tankCode,
     required this.observations,
   });
- 
+
+
+  factory FermentationStageDTO.fromJson(Map<String, dynamic> json) {
+    return FermentationStageDTO(
+      batchId: json['batchId'] ?? '',
+      stageType: json['stageType'] ?? '',
+      startedAt: json['startedAt'] ?? '',
+      completedAt: json['completedAt'] ?? '',
+      completedBy: json['completedBy'] ?? '',
+      isCompleted: json['isCompleted'] ?? false,
+      yeastUsed: json['yeastUsed'] ?? '',
+      initialSugarLevel: (json['initialSugarLevel'] ?? 0).toDouble(),
+      finalSugarLevel: (json['finalSugarLevel'] ?? 0).toDouble(),
+      initialPh: (json['initialPh'] ?? 0).toDouble(),
+      finalPh: (json['finalPh'] ?? 0).toDouble(),
+      temperatureMax: (json['temperatureMax'] ?? 0).toDouble(),
+      temperatureMin: (json['temperatureMin'] ?? 0).toDouble(),
+      fermentationType: json['fermentationType'] ?? '',
+      tankCode: json['tankCode'] ?? '',
+      observations: json['observations'] ?? '',
+    );
+  }
+
+  FermentationStage toDomain() {
+    return FermentationStage(
+      batchId: batchId,
+      stageType: stageType,
+      startedAt: startedAt,
+      completedAt: completedAt,
+      completedBy: completedBy,
+      isCompleted: isCompleted,
+      yeastUsed: yeastUsed,
+      initialSugarLevel: initialSugarLevel,
+      finalSugarLevel: finalSugarLevel,
+      initialPh: initialPh,
+      finalPh: finalPh,
+      temperatureMax: temperatureMax,
+      temperatureMin: temperatureMin,
+      fermentationType: fermentationType,
+      tankCode: tankCode,
+      observations: observations,
+    );
+  }
+
 }

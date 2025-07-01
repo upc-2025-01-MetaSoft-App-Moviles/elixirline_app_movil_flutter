@@ -14,6 +14,8 @@
   "observations": "string"
 }
 */
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/reception_stage.dart';
+
 class ReceptionStageDTO {
   final String batchId;
   final String stageType;
@@ -40,4 +42,39 @@ class ReceptionStageDTO {
     required this.quantityKg,
     required this.observations,
   });
+
+  factory ReceptionStageDTO.fromJson(Map<String, dynamic> json) {
+    return ReceptionStageDTO(
+      batchId: json['batchId'] ?? '',
+      stageType: json['stageType'] ?? '',
+      startedAt: json['startedAt'] ?? '',
+      completedAt: json['completedAt'] ?? '',
+      completedBy: json['completedBy'] ?? '',
+      isCompleted: json['isCompleted'] ?? false,
+      sugarLevel: (json['sugarLevel'] ?? 0).toDouble(),
+      pH: (json['pH'] ?? 0).toDouble(),
+      temperature: (json['temperature'] ?? 0).toDouble(),
+      quantityKg: (json['quantityKg'] ?? 0).toDouble(),
+      observations: json['observations'] ?? '',
+    );
+  }
+
+  ReceptionStage toDomain() {
+    return ReceptionStage(
+      batchId: batchId,
+      stageType: stageType,
+      startedAt: startedAt,
+      completedAt: completedAt,
+      completedBy: completedBy,
+      isCompleted: isCompleted,
+      sugarLevel: sugarLevel,
+      pH: pH,
+      temperature: temperature,
+      quantityKg: quantityKg,
+      observations: observations,
+    );
+  }
+
+
+
 }

@@ -20,6 +20,8 @@
   "wereCapsulesApplied": true
 }
 */
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/bottling_stage.dart';
+
 class BottlingStageDto {
   final String batchId;
   final String stageType;
@@ -58,5 +60,50 @@ class BottlingStageDto {
     required this.wereLabelsApplied,
     required this.wereCapsulesApplied,
   });
-  
+
+
+  factory BottlingStageDto.fromJson(Map<String, dynamic> json) {
+    return BottlingStageDto(
+      batchId: json['batchId'] ?? '',
+      stageType: json['stageType'] ?? '',
+      startedAt: json['startedAt'] ?? '',
+      completedAt: json['completedAt'] ?? '',
+      completedBy: json['completedBy'] ?? '',
+      observations: json['observations'] ?? '',
+      isCompleted: json['isCompleted'] ?? false,
+      bottlingLine: json['bottlingLine'] ?? '',
+      bottlesFilled: json['bottlesFilled'] ?? 0,
+      bottleVolumeMl: json['bottleVolumeMl'] ?? 0,
+      totalVolumeLiters: (json['totalVolumeLiters'] ?? 0).toDouble(),
+      sealType: json['sealType'] ?? '',
+      code: json['code'] ?? '',
+      temperature: (json['temperature'] ?? 0).toDouble(),
+      wasFiltered: json['wasFiltered'] ?? false,
+      wereLabelsApplied: json['wereLabelsApplied'] ?? false,
+      wereCapsulesApplied: json['wereCapsulesApplied'] ?? false,
+    );
+  }
+
+  BottlingStage toDomain() {
+    return BottlingStage(
+      batchId: batchId,
+      stageType: stageType,
+      startedAt: startedAt,
+      completedAt: completedAt,
+      completedBy: completedBy,
+      observations: observations,
+      isCompleted: isCompleted,
+      bottlingLine: bottlingLine,
+      bottlesFilled: bottlesFilled,
+      bottleVolumeMl: bottleVolumeMl,
+      totalVolumeLiters: totalVolumeLiters,
+      sealType: sealType,
+      code: code,
+      temperature: temperature,
+      wasFiltered: wasFiltered,
+      wereLabelsApplied: wereLabelsApplied,
+      wereCapsulesApplied: wereCapsulesApplied,
+    );
+  }
+
 }

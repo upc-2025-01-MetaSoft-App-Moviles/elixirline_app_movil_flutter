@@ -23,6 +23,8 @@
 }
 */
 
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/aging_stage.dart';
+
 class AgingStageDto {
   final String batchId;
   final String stageType;
@@ -63,5 +65,53 @@ class AgingStageDto {
     required this.rackings,
     required this.purpose,
   });
+
+  factory AgingStageDto.fromJson(Map<String, dynamic> json) {
+    return AgingStageDto(
+      batchId: json['batchId'] ?? '',
+      stageType: json['stageType'] ?? '',
+      startedAt: json['startedAt'] ?? '',
+      completedAt: json['completedAt'] ?? '',
+      completedBy: json['completedBy'] ?? '',
+      observations: json['observations'] ?? '',
+      isCompleted: json['isCompleted'] ?? false,
+      containerType: json['containerType'] ?? '',
+      material: json['material'] ?? '',
+      containerCode: json['containerCode'] ?? '',
+      avgTemperature: (json['avgTemperature'] ?? 0).toDouble(),
+      volumeLiters: (json['volumeLiters'] ?? 0).toDouble(),
+      durationMonths: (json['durationMonths'] ?? 0).toInt(),
+      frequencyDays: (json['frequencyDays'] ?? 0).toInt(),
+      refilled: (json['refilled'] ?? 0).toInt(),
+      batonnage: (json['batonnage'] ?? 0).toInt(),
+      rackings: (json['rackings'] ?? 0).toInt(),
+      purpose: json['purpose'] ?? '',
+    );
+  }
+
+  AgingStage toDomain() {
+    return AgingStage(
+      batchId: batchId,
+      stageType: stageType,
+      startedAt: startedAt,
+      completedAt: completedAt,
+      completedBy: completedBy,
+      observations: observations,
+      isCompleted: isCompleted,
+      containerType: containerType,
+      material: material,
+      containerCode: containerCode,
+      avgTemperature: avgTemperature,
+      volumeLiters: volumeLiters,
+      durationMonths: durationMonths,
+      frequencyDays: frequencyDays,
+      refilled: refilled,
+      batonnage: batonnage,
+      rackings: rackings,
+      purpose: purpose,
+    );
+  }
+
+
   
 }
