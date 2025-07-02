@@ -1,3 +1,4 @@
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/wine_batches_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
@@ -11,41 +12,23 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Índice actual del contenido visible
   int _selectedIndex = 0;
 
-  /// Todas las páginas disponibles (Perfil + las del Drawer)
-  static const List<Widget> _pages = [
-    Center(child: Text('Perfil del Usuario')),
-    Center(child: Text('Proceso de vinificación')),
-    Center(child: Text('Gestión de Insumos')),
-    Center(child: Text('Actividades Agrícolas')),
-    Center(child: Text('Gestión de Empleados')),
-    Center(child: Text('Historial de Producción')),
-  ];
+  // Claves de navegadores por cada pestaña
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = List.generate(
+    6,
+    (_) => GlobalKey<NavigatorState>(),
+  );
 
-  /// Ítems de la barra de navegación inferior
-  static const List<BottomNavigationBarItem> _navItems = [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.person_outlined),
-      activeIcon: Icon(Icons.person),
-      label: 'Perfil',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.menu),
-      activeIcon: Icon(Icons.menu_open_rounded),
-      label: 'Menú',
-    ),
-  ];
-
-  /// Maneja taps en el BottomNavigationBar
+  // Maneja taps en la BottomNavigationBar
   void _onItemTapped(int index) {
     if (index == 1) {
       _scaffoldKey.currentState?.openDrawer(); // Abre el Drawer
     } else {
-      setState(() => _selectedIndex = 0); // Siempre lleva a perfil
+      setState(() => _selectedIndex = 0); // Solo perfil
     }
   }
 
@@ -55,7 +38,20 @@ class _MainPageState extends State<MainPage> {
     setState(() => _selectedIndex = pageIndex);
   }
 
-  /// Construye el Drawer lateral con navegación personalizada
+  /// Construye un Navigator por cada pestaña
+  Widget _buildTabNavigator(int index, Widget initialPage) {
+    return Navigator(
+      key: _navigatorKeys[index],
+      onGenerateRoute: (RouteSettings settings) {
+        return MaterialPageRoute(
+          builder: (_) => initialPage,
+          settings: settings,
+        );
+      },
+    );
+  }
+
+  /// Drawer lateral
   Widget _buildDrawer() {
     return Drawer(
       child: ListView(
@@ -97,9 +93,7 @@ class _MainPageState extends State<MainPage> {
             title: const Text('Historial de Producción'),
             onTap: () => _navigateFromDrawer(5),
           ),
-          
-          Divider(), // Separador visual
-
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Cerrar sesión'),
@@ -110,28 +104,49 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  /// Construye la interfaz principal
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      
-      drawer: _buildDrawer(),
-
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex == 0 ? 0 : 1, // marca Menú si no es perfil
-        onTap: _onItemTapped,
-        backgroundColor: ColorPalette.vinoTinto,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        type: BottomNavigationBarType.fixed,
-        items: _navItems,
+    return WillPopScope(
+      onWillPop: () async {
+        final isFirstRouteInTab =
+            !await _navigatorKeys[_selectedIndex].currentState!.maybePop();
+        return isFirstRouteInTab;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawer: _buildDrawer(),
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            _buildTabNavigator(0, const Center(child: Text('Perfil del Usuario'))),
+            _buildTabNavigator(1, const WineBatchesPage()),
+            _buildTabNavigator(2, const Center(child: Text('Gestión de Insumos'))),
+            _buildTabNavigator(3, const Center(child: Text('Actividades Agrícolas'))),
+            _buildTabNavigator(4, const Center(child: Text('Gestión de Empleados'))),
+            _buildTabNavigator(5, const Center(child: Text('Historial de Producción'))),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex == 0 ? 0 : 1,
+          onTap: _onItemTapped,
+          backgroundColor: ColorPalette.vinoTinto,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outlined),
+              activeIcon: Icon(Icons.person),
+              label: 'Perfil',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.menu),
+              activeIcon: Icon(Icons.menu_open_rounded),
+              label: 'Menú',
+            ),
+          ],
+        ),
       ),
     );
   }
