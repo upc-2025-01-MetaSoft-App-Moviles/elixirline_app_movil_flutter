@@ -1,7 +1,7 @@
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/wine_batch_service.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/wine_batch_dto.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/wine_batch_detail_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batch_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 

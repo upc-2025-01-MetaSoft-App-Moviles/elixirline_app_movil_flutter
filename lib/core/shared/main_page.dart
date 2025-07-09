@@ -1,4 +1,4 @@
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/wine_batches_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batches_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
