@@ -1,6 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'worker_form_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+import 'package:open_file/open_file.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/presentation/screens/worker_evaluation_screen.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/domain/models/worker.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/data/repositories/worker_repository.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/domain/models/worker_task.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/presentation/viewmodels/worker_task_viewmodel.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/presentation/screens/worker_attendance_screen.dart';
+
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/presentation/screens/worker_task_history_screen.dart';
+
+// ... (imports se mantienen igual)
 
 class WorkerListScreen extends StatefulWidget {
   const WorkerListScreen({super.key});
@@ -10,79 +23,58 @@ class WorkerListScreen extends StatefulWidget {
 }
 
 class _WorkerListScreenState extends State<WorkerListScreen> {
-  final List<String> roleOptions = [
-    'Podador', 'Cosechador', 'Supervisor', 'Recolector', 'Fumigador',
-    'Encargado de riego', 'Jornalero', 'Clasificador de uvas',
-    'Conductor de tractor', 'Técnico agrícola', 'Capataz de campo',
-    'Encargado de bodega', 'Control de calidad',
+  final mockTasks = [
+    WorkerTask(
+      id: const Uuid().v4(),
+      title: 'Podado de vides',
+      description: 'Lote A - Sur',
+      date: DateTime(2024, 5, 10),
+      status: 'Completada',
+    ),
+    WorkerTask(
+      id: const Uuid().v4(),
+      title: 'Aplicación de pesticida',
+      description: 'Zona Norte',
+      date: DateTime(2024, 6, 3),
+      status: 'En progreso',
+    ),
+    WorkerTask(
+      id: const Uuid().v4(),
+      title: 'Cosecha',
+      description: 'Parcela 2',
+      date: DateTime(2024, 6, 28),
+      status: 'Pendiente',
+    ),
   ];
 
-  final List<String> zonaOptions = [
-    'Zona Norte', 'Zona Sur', 'Zona Este', 'Zona Oeste', 'Lote 1', 'Lote 2',
-    'Viñedo Principal', 'Zona de Riego', 'Zona de Empaque', 'Zona Experimental',
-  ];
+  final WorkerRepository _repository = WorkerRepository();
 
-  final List<String> nivelesExperiencia = [
-    'Básico', 'Intermedio', 'Avanzado', 'Experto',
-  ];
-
-  final List<Map<String, dynamic>> allWorkers = [
-    {
-      'name': 'Juan Pérez', 'dni': '12345678', 'role': 'Podador', 'isActive': true,
-      'entryDate': '2023-03-01T00:00:00', 'contractEndDate': '2025-06-26T00:00:00',
-      'imagePath': null, 'contractType': 'Temporal', 'zonaAsignada': 'Parcela A',
-      'nivelExperiencia': 'Intermedio',
-    },
-    {
-      'name': 'Ana Torres', 'dni': '87654321', 'role': 'Cosechador', 'isActive': false,
-      'entryDate': '2024-01-15T00:00:00', 'contractEndDate': '2025-06-23T00:00:00',
-      'imagePath': null, 'contractType': 'Por obra', 'zonaAsignada': 'Zona Sur',
-      'nivelExperiencia': 'Avanzado',
-    },
-    {
-      'name': 'Carlos Huamán', 'dni': '45671234', 'role': 'Supervisor', 'isActive': true,
-      'entryDate': '2022-05-20T00:00:00', 'contractEndDate': '2025-09-19T00:00:00',
-      'imagePath': null, 'contractType': 'Permanente', 'zonaAsignada': 'Viñedo Central',
-      'nivelExperiencia': 'Experto',
-    },
-    {
-      'name': 'Lucía Ramírez', 'dni': '22334455', 'role': 'Recolectora', 'isActive': true,
-      'entryDate': '2023-09-10T00:00:00', 'contractEndDate': '2025-06-22T00:00:00',
-      'imagePath': null, 'contractType': 'Temporal', 'zonaAsignada': 'Parcela B',
-      'nivelExperiencia': 'Básico',
-    },
-    {
-      'name': 'Andrés Quispe', 'dni': '99887766', 'role': 'Fumigador', 'isActive': false,
-      'entryDate': '2021-12-05T00:00:00', 'contractEndDate': '2025-07-21T00:00:00',
-      'imagePath': null, 'contractType': 'Por obra', 'zonaAsignada': 'Sector Norte',
-      'nivelExperiencia': 'Intermedio',
-    },
-    {
-      'name': 'María Ccahuana', 'dni': '33445566', 'role': 'Encargada de riego', 'isActive': true,
-      'entryDate': '2022-08-01T00:00:00', 'contractEndDate': '2025-06-24T00:00:00',
-      'imagePath': null, 'contractType': 'Permanente', 'zonaAsignada': 'Zona Este',
-      'nivelExperiencia': 'Avanzado',
-    },
-    {
-      'name': 'Pedro Gutiérrez', 'dni': '11223344', 'role': 'Jornalero', 'isActive': true,
-      'entryDate': '2023-11-15T00:00:00', 'contractEndDate': '2025-12-18T00:00:00',
-      'imagePath': null, 'contractType': 'Temporal', 'zonaAsignada': 'Zona Sur',
-      'nivelExperiencia': 'Básico',
-    },
-  ];
-
-  List<Map<String, dynamic>> filteredWorkers = [];
+  List<Worker> allWorkers = [];
+  List<Worker> filteredWorkers = [];
   String searchQuery = '';
   String? selectedRole;
   String? selectedStatus;
 
   List<String> get availableRoles =>
-      allWorkers.map((w) => w['role'] as String).toSet().toList()..sort();
+      allWorkers.map((w) => w.role).toSet().toList()..sort();
 
   @override
   void initState() {
     super.initState();
-    filteredWorkers = List.from(allWorkers);
+    _loadWorkers();
+  }
+
+  Future<void> _loadWorkers() async {
+    final workers = await _repository.loadWorkers();
+    if (!mounted) return;
+    setState(() {
+      allWorkers = workers;
+      _applyFilters();
+    });
+  }
+
+  Future<void> _saveWorkers() async {
+    await _repository.saveWorkers(allWorkers);
   }
 
   void updateSearch(String query) {
@@ -93,86 +85,83 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
   }
 
   void _applyFilters() {
-    filteredWorkers = allWorkers.where((worker) {
-      final matchesSearch =
-          worker['name'].toLowerCase().contains(searchQuery) ||
-          worker['dni'].contains(searchQuery);
-      final matchesStatus = selectedStatus == null
-          ? true
-          : selectedStatus == 'Activo'
-              ? worker['isActive']
-              : !worker['isActive'];
-      final matchesRole =
-          selectedRole == null || worker['role'] == selectedRole;
-      return matchesSearch && matchesStatus && matchesRole;
-    }).toList();
+    setState(() {
+      filteredWorkers = allWorkers.where((worker) {
+        final matchesSearch =
+            worker.fullName.toLowerCase().contains(searchQuery) ||
+            worker.id.contains(searchQuery);
+        final matchesStatus = selectedStatus == null
+            ? true
+            : selectedStatus == 'Activo'
+            ? worker.isActive
+            : !worker.isActive;
+        final matchesRole = selectedRole == null || worker.role == selectedRole;
+        return matchesSearch && matchesStatus && matchesRole;
+      }).toList();
+    });
   }
 
-  void _confirmDelete(Map<String, dynamic> worker) {
-    showDialog(
+  void _confirmDelete(Worker worker) async {
+    final confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('¿Eliminar trabajador?'),
-        content: Text('¿Estás seguro de eliminar a ${worker['name']}?'),
+        content: Text('¿Estás seguro de eliminar a ${worker.fullName}?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                allWorkers.remove(worker);
-                _applyFilters();
-              });
-              Navigator.pop(context);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Trabajador eliminado')),
-                );
-              }
-            },
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
-  }
 
-  String _calcularAntiguedad(String? fechaIngresoStr) {
-    if (fechaIngresoStr == null) return '';
-    final ingreso = DateTime.tryParse(fechaIngresoStr);
-    if (ingreso == null) return '';
-    final hoy = DateTime.now();
-    int anios = hoy.year - ingreso.year;
-    int meses = hoy.month - ingreso.month;
-    if (meses < 0) {
-      anios--;
-      meses += 12;
+    if (!mounted) return;
+    if (confirm == true) {
+      setState(() {
+        allWorkers.removeWhere((w) => w.id == worker.id);
+        _applyFilters();
+      });
+      await _saveWorkers();
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Trabajador eliminado')));
     }
-    return "$anios año(s), $meses mes(es)";
   }
 
   void _sortWorkers(String sortBy) {
     setState(() {
       if (sortBy == 'name') {
-        allWorkers.sort((a, b) => a['name'].compareTo(b['name']));
+        allWorkers.sort((a, b) => a.fullName.compareTo(b.fullName));
       } else if (sortBy == 'date') {
         allWorkers.sort((a, b) {
-          final dateA = DateTime.tryParse(a['entryDate']);
-          final dateB = DateTime.tryParse(b['entryDate']);
-          return (dateB ?? DateTime(0)).compareTo(dateA ?? DateTime(0));
+          return (b.entryDate ?? DateTime(0)).compareTo(
+            a.entryDate ?? DateTime(0),
+          );
         });
       }
       _applyFilters();
     });
   }
 
+  Color _getContractColor(DateTime? endDate) {
+    if (endDate == null) return Colors.black;
+    final daysLeft = endDate.difference(DateTime.now()).inDays;
+    if (daysLeft <= 30) return Colors.red;
+    if (daysLeft <= 60) return Colors.orange;
+    return Colors.green;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final grouped = <String, List<Map<String, dynamic>>>{};
+    final grouped = <String, List<Worker>>{};
     for (var worker in filteredWorkers) {
-      final role = worker['role'] ?? 'Otros';
+      final role = worker.role.isNotEmpty ? worker.role : 'Otros';
       grouped.putIfAbsent(role, () => []).add(worker);
     }
 
@@ -200,13 +189,15 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
             MaterialPageRoute(builder: (_) => const WorkerFormScreen()),
           );
 
-          if (!context.mounted) return;
+          if (!mounted) return;
 
-          if (newWorker != null) {
+          if (newWorker != null && newWorker is Worker) {
             setState(() {
               allWorkers.add(newWorker);
               _applyFilters();
             });
+            await _saveWorkers();
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Trabajador agregado')),
             );
@@ -238,8 +229,14 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                         value: selectedStatus,
                         decoration: const InputDecoration(labelText: 'Estado'),
                         items: const [
-                          DropdownMenuItem(value: 'Activo', child: Text('Activo')),
-                          DropdownMenuItem(value: 'Inactivo', child: Text('Inactivo')),
+                          DropdownMenuItem(
+                            value: 'Activo',
+                            child: Text('Activo'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Inactivo',
+                            child: Text('Inactivo'),
+                          ),
                         ],
                         onChanged: (val) {
                           setState(() {
@@ -256,7 +253,9 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                         value: selectedRole,
                         decoration: const InputDecoration(labelText: 'Rol'),
                         items: availableRoles
-                            .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                            .map(
+                              (r) => DropdownMenuItem(value: r, child: Text(r)),
+                            )
                             .toList(),
                         onChanged: (val) {
                           setState(() {
@@ -279,7 +278,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                           filteredWorkers = List.from(allWorkers);
                         });
                       },
-                    )
+                    ),
                   ],
                 ),
               ],
@@ -306,93 +305,278 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                       ),
                     ),
                     ...workers.map((worker) {
-                      final imagePath = worker['imagePath'];
-                      final contractEnd = DateTime.tryParse(
-                        worker['contractEndDate'] ?? '',
-                      );
-                      final isExpiringSoon =
-                          contractEnd != null &&
-                          contractEnd.difference(DateTime.now()).inDays <= 30;
-
+                      final contractEnd = worker.contractEndDate;
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundImage:
-                              (imagePath != null && imagePath != '')
-                                  ? FileImage(File(imagePath))
-                                  : null,
-                          child: (imagePath == null || imagePath == '')
+                          backgroundImage: worker.imagePath != null
+                              ? FileImage(File(worker.imagePath!))
+                              : null,
+                          child: worker.imagePath == null
                               ? const Icon(Icons.person, color: Colors.white70)
                               : null,
                         ),
-                        title: Text(worker['name']),
+                        title: Text(worker.fullName),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('DNI: ${worker['dni']}'),
-                            if (worker['entryDate'] != null)
+                            Text('DNI: ${worker.id}'),
+                            if (worker.entryDate != null)
                               Text(
-                                'Ingreso: ${worker['entryDate'].split("T")[0]}',
+                                'Ingreso: ${worker.entryDate!.toIso8601String().split("T")[0]}',
                               ),
-                            if (worker['zonaAsignada'] != null)
-                              Text('Zona: ${worker['zonaAsignada']}'),
-                            if (worker['contractEndDate'] != null)
+                            if (worker.zonaAsignada != null)
+                              Text('Zona: ${worker.zonaAsignada}'),
+                            if (worker.contractEndDate != null)
                               Text(
-                                'Contrato hasta: ${worker['contractEndDate'].split("T")[0]}',
+                                'Contrato hasta: ${worker.contractEndDate!.toIso8601String().split("T")[0]}',
                                 style: TextStyle(
-                                  color: isExpiringSoon ? Colors.red : null,
+                                  color: _getContractColor(contractEnd),
                                 ),
                               ),
-                            if (worker['contractType'] != null)
-                              Text(
-                                'Tipo de contrato: ${worker['contractType']}',
+                            if (worker.contractType != null)
+                              Text('Tipo de contrato: ${worker.contractType}'),
+                            Text(
+                              'Estado: ${worker.isActive ? 'Activo' : 'Inactivo'}',
+                              style: TextStyle(
+                                color: worker.isActive
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (worker.documentPaths.isNotEmpty)
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.picture_as_pdf,
+                                    size: 18,
+                                    color: Colors.purple,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${worker.documentPaths.length} doc(s)',
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.folder_open_rounded,
+                                      size: 20,
+                                      color: Colors.indigo,
+                                    ),
+                                    tooltip: 'Ver documentos',
+                                    onPressed: () async {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text(
+                                            '📁 Documentos del trabajador',
+                                          ),
+                                          content: SizedBox(
+                                            width: double.maxFinite,
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount:
+                                                  worker.documentPaths.length,
+                                              itemBuilder: (context, index) {
+                                                final docPath =
+                                                    worker.documentPaths[index];
+                                                final fileName = docPath
+                                                    .split('/')
+                                                    .last;
+                                                return ListTile(
+                                                  leading: const Icon(
+                                                    Icons.picture_as_pdf,
+                                                  ),
+                                                  title: Text(
+                                                    fileName,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  onTap: () async {
+                                                    final file = File(docPath);
+                                                    if (await file.exists()) {
+                                                      await OpenFile.open(
+                                                        file.path,
+                                                      );
+                                                    } else {
+                                                      Navigator.pop(context);
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            'Archivo no encontrado: $fileName',
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: const Text('Cerrar'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                           ],
                         ),
                         trailing: Wrap(
-                          spacing: 8.0,
-                          direction: Axis.horizontal,
+                          spacing: 2.0,
                           children: [
-                            Chip(
-                              label: Text(
-                                worker['isActive'] ? 'Activo' : 'Inactivo',
+                            IconButton(
+                              icon: const Icon(Icons.access_time),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => WorkerAttendanceScreen(
+                                      workerId: worker.id,
+                                      workerName: worker.fullName,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.history),
+                              tooltip: 'Ver historial de tareas',
+                              onPressed: () {
+                                final viewModel =
+                                    Provider.of<WorkerTaskViewModel>(
+                                      context,
+                                      listen: false,
+                                    );
+                                viewModel.loadTasksForWorker(worker.id);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        WorkerTaskHistoryScreen(worker: worker),
+                                  ),
+                                );
+                              },
+                            ),
+
+                            IconButton(
+                              icon: const Icon(
+                                Icons.bar_chart_rounded,
+                                color: Colors.indigo,
                               ),
-                              backgroundColor: worker['isActive']
-                                  ? Colors.green
-                                  : Colors.red,
+                              tooltip: 'Ver evaluaciones',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        WorkerEvaluationScreen(worker: worker),
+                                  ),
+                                );
+                              },
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
+                              tooltip: 'Eliminar',
                               onPressed: () => _confirmDelete(worker),
                             ),
                           ],
                         ),
                         onTap: () async {
-                          final validatedWorker = Map<String, dynamic>.from(worker);
-                          if (!roleOptions.contains(validatedWorker['role'])) {
-                            validatedWorker['role'] = null;
-                          }
-                          if (!zonaOptions.contains(validatedWorker['zonaAsignada'])) {
-                            validatedWorker['zonaAsignada'] = null;
-                          }
-                          if (!nivelesExperiencia.contains(validatedWorker['nivelExperiencia'])) {
-                            validatedWorker['nivelExperiencia'] = null;
-                          }
-
                           final updatedWorker = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => WorkerFormScreen(worker: validatedWorker),
+                              builder: (_) =>
+                                  WorkerFormScreen(worker: worker.toJson()),
                             ),
                           );
+if (updatedWorker != null && updatedWorker is Worker) {
+  print("📦 DOCUMENTOS RECIBIDOS EN LISTSCREEN: ${updatedWorker.documentPaths}");
 
-                          if (!context.mounted) return;
+  setState(() {
+    final index = allWorkers.indexWhere((w) => w.id == updatedWorker.id);
+    if (index != -1) {
+      allWorkers[index] = updatedWorker;
+    }
+    _applyFilters();
+  });
 
-                          if (updatedWorker != null) {
+  await _saveWorkers();
+
+  // Mostrar documentos en diálogo
+  if (updatedWorker.documentPaths.isNotEmpty) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('📄 Documentos del trabajador'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: updatedWorker.documentPaths.map((path) {
+              final fileName = path.split('/').last;
+              return ListTile(
+                leading: const Icon(Icons.insert_drive_file),
+                title: Text(fileName, overflow: TextOverflow.ellipsis),
+                trailing: IconButton(
+                  icon: const Icon(Icons.open_in_new, color: Colors.blue),
+                  onPressed: () async {
+                    final file = File(path);
+                    if (await file.exists()) {
+                      await OpenFile.open(file.path);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Archivo no encontrado'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+                          if (!mounted) return;
+
+                          if (updatedWorker != null &&
+                              updatedWorker is Worker) {
+                            print(
+                              "📦 DOCUMENTOS RECIBIDOS EN LISTSCREEN: ${updatedWorker.documentPaths}",
+                            );
+
                             setState(() {
-                              final index = allWorkers.indexOf(worker);
-                              allWorkers[index] = updatedWorker;
+                              final index = allWorkers.indexWhere(
+                                (w) => w.id == updatedWorker.id,
+                              );
+                              if (index != -1) {
+                                allWorkers[index] = updatedWorker;
+                              }
                               _applyFilters();
                             });
+
+                            await _saveWorkers();
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Trabajador actualizado'),

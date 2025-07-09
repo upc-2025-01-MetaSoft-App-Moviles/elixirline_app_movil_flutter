@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
-import 'features/fieldworkers_management/presentation/screens/worker_list_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/presentation/viewmodels/worker_viewmodel.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/presentation/viewmodels/worker_task_viewmodel.dart';
+import 'package:elixirline_app_movil_flutter/features/fieldworkers_management/presentation/screens/worker_list_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ElixirLineApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ElixirLineApp extends StatelessWidget {
+  const ElixirLineApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'ElixirLine Móvil',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: const WorkerListScreen(), // ← esta es la clave
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => WorkerViewModel()),
+        ChangeNotifierProvider(create: (_) => WorkerTaskViewModel()),
+      ],
+      child: MaterialApp(
+        title: 'ElixirLine Gestión de Trabajadores',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.deepPurple,
+          useMaterial3: true,
+        ),
+        home: const WorkerListScreen(),
+      ),
     );
   }
 }
