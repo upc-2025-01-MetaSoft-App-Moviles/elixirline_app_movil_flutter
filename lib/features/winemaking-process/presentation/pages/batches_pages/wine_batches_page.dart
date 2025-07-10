@@ -1,6 +1,7 @@
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/wine_batch_service.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/wine_batch_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batch_create_and_edit.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batch_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -73,7 +74,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(), // Quita el foco
+        onTap: () => FocusScope.of(context).unfocus(),
 
         child: Scaffold(
           appBar: AppBar(
@@ -89,25 +90,51 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
 
           body: Container(
             padding: const EdgeInsets.all(16.0),
-
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
-                // Barra de búsqueda para filtrar lotes por viñedo de origen y código interno
                 _buildSearchBar(),
-
-                SizedBox(height: 16.0),
-
-                // Mostrar el total de lotes de vino
+                const SizedBox(height: 16.0),
                 _buildTotalBatches(),
-
-                Divider(),
-
-                // Mostrar los lotes filtrados en cards
+                const Divider(),
                 _buildFilteredBatches(),
               ],
             ),
+          ),
+
+          // Botón flotante para crear nuevo lote
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: ColorPalette.vinoTinto,
+            onPressed: () async {
+              final newBatch = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateWineBatchPage()),
+              );
+
+              if (newBatch != null) {
+                if (newBatch is WineBatchDTO) {
+                  // Insertar directamente si es creación
+                  setState(() {
+                    wineBatches.insert(0, newBatch);
+                    _filterBatches();
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Lote creado exitosamente')),
+                  );
+                } else if (newBatch == 'updated') {
+                  // Volver a cargar si fue edición
+                  await loadWineBatches();
+                  _filterBatches();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Lote actualizado exitosamente'),
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Icon(Icons.add, color: Colors.white),
+            tooltip: 'Crear nuevo lote',
           ),
         ),
       ),
@@ -163,9 +190,9 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
                     horizontal: 4.0,
                   ),
 
-                  child: InkWell(  
+                  child: InkWell(
                     splashColor: ColorPalette.vinoTinto.withOpacity(0.2),
-                    highlightColor: ColorPalette.vinoTinto.withOpacity(0.1),                
+                    highlightColor: ColorPalette.vinoTinto.withOpacity(0.1),
                     onTap: () {
                       // Navegar a la página de detalles del lote de vino
                       Navigator.push(

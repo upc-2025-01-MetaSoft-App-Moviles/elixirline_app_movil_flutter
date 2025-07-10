@@ -4,12 +4,11 @@ import 'dart:io';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/wine_batch_dto.dart';
 import 'package:http/http.dart' as http;
 
-
 class WineBatchService {
   final String _baseUrl;
 
-  WineBatchService(String resourceEndpoint) 
-      : _baseUrl = 'http://10.0.2.2:5110/api/v1$resourceEndpoint';
+  WineBatchService(String resourceEndpoint)
+    : _baseUrl = 'http://10.0.2.2:5110/api/v1$resourceEndpoint';
 
   Future<List<WineBatchDTO>> getWineBatches() {
     return http
@@ -19,13 +18,14 @@ class WineBatchService {
             final List<dynamic> maps = jsonDecode(response.body);
             return maps.map((e) => WineBatchDTO.fromJson(e)).toList();
           } else {
-            throw HttpException("Error fetching wine batches: ${response.statusCode}");
+            throw HttpException(
+              "Error fetching wine batches: ${response.statusCode}",
+            );
           }
         })
         .catchError((error) {
           throw Exception("Unexpected error in getWineBatches: $error");
         });
-   
   }
 
   Future<WineBatchDTO> getWineBatchById(int id) {
@@ -36,7 +36,9 @@ class WineBatchService {
             final map = jsonDecode(response.body);
             return WineBatchDTO.fromJson(map);
           } else {
-            throw HttpException("Error fetching wine batch: ${response.statusCode}");
+            throw HttpException(
+              "Error fetching wine batch: ${response.statusCode}",
+            );
           }
         })
         .catchError((error) {
@@ -44,7 +46,7 @@ class WineBatchService {
         });
   }
 
-  Future<void> createWineBatch(Map<String, dynamic> batchData) {
+  Future<WineBatchDTO> createWineBatch(Map<String, dynamic> batchData) {
     return http
         .post(
           Uri.parse(_baseUrl),
@@ -52,8 +54,13 @@ class WineBatchService {
           body: jsonEncode(batchData),
         )
         .then((response) {
-          if (response.statusCode != HttpStatus.created) {
-            throw HttpException("Error creating wine batch: ${response.statusCode}");
+          if (response.statusCode == HttpStatus.created) {
+            final map = jsonDecode(response.body);
+            return WineBatchDTO.fromJson(map);
+          } else {
+            throw HttpException(
+              "Error creating wine batch: ${response.statusCode}",
+            );
           }
         })
         .catchError((error) {
@@ -69,15 +76,14 @@ class WineBatchService {
           body: jsonEncode(batchData),
         )
         .then((response) {
-          if (response.statusCode != HttpStatus.ok) {
-            throw HttpException("Error updating wine batch: ${response.statusCode}");
+          if (response.statusCode != HttpStatus.noContent) {
+            throw HttpException(
+              "Error updating wine batch: ${response.statusCode}",
+            );
           }
         })
         .catchError((error) {
           throw Exception("Unexpected error in updateWineBatch: $error");
         });
   }
-
 }
-
-
