@@ -2,8 +2,7 @@ import '../../domain/entities/parcel.dart';
 import '../../domain/repositories/parcel_repository.dart';
 
 class ParcelRepositoryImpl implements ParcelRepository {
-  @override
-  Future<List<Parcel>> getParcels() async => [
+  final List<Parcel> _parcels = [
     Parcel(
       id: '1',
       name: 'Lote A',
@@ -17,5 +16,12 @@ class ParcelRepositoryImpl implements ParcelRepository {
   ];
 
   @override
-  Future<void> createParcel(Parcel parcel) async {}
+  Future<List<Parcel>> getParcels() async {
+    return _parcels;
+  }
+
+  @override
+  Future<void> createParcel(Parcel parcel) async {
+    _parcels.add(parcel);
+  }
 }

@@ -64,8 +64,10 @@ class MainScreen extends ConsumerWidget {
               children: [
                 QuickAccessButton(
                   text: 'Nueva actividad',
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/newTask');
+                  onPressed: () async {
+                    await Navigator.pushNamed(context, '/newTask');
+                    // ignore: unused_result
+                    ref.refresh(taskProvider);
                   },
                 ),
                 QuickAccessButton(

@@ -14,7 +14,7 @@ final getTasksUseCaseProvider = Provider<GetTasksUseCase>((ref) {
 });
 
 final taskProvider = FutureProvider<List<Task>>((ref) async {
-  final getTasksUseCase = GetTasksUseCase(TaskRepositoryImpl());
+  final getTasksUseCase = ref.read(getTasksUseCaseProvider);
   return await getTasksUseCase.execute();
 });
 

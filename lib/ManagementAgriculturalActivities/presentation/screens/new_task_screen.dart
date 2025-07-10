@@ -6,9 +6,10 @@ import 'package:intl/intl.dart';
 import '../../domain/entities/parcel.dart';
 import '../../domain/entities/task.dart';
 import '../../application/usecases/create_task_usecase.dart';
-import '../../infrastructure/repositories_impl/task_repository_impl.dart';
 import '../providers/parcel_provider.dart';
 import '../widgets/task_card.dart';
+import '../providers/task_provider.dart';
+
 
 class NewTaskScreen extends ConsumerStatefulWidget {
   const NewTaskScreen({super.key});
@@ -79,8 +80,10 @@ class _NewTaskScreenState extends ConsumerState<NewTaskScreen> {
         responsible: responsable,
       );
 
-      final createTaskUseCase = CreateTaskUseCase(TaskRepositoryImpl());
+      final repository = ref.read(taskRepositoryProvider);
+      final createTaskUseCase = CreateTaskUseCase(repository);
       await createTaskUseCase.execute(newTask);
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Actividad guardada con éxito')),

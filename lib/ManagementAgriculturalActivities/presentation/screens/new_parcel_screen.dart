@@ -1,4 +1,4 @@
-// ignore_for_file: unused_import
+// ignore_for_file: unused_import, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,7 +46,7 @@ class _NewParcelScreenState extends ConsumerState<NewParcelScreen> {
     }
   }
 
-  void _saveParcel() {
+  Future<void> _saveParcel() async {
     if (_formKey.currentState!.validate()) {
       if (cropType == null || growthStage == null || status == null || receptionDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -66,12 +66,9 @@ class _NewParcelScreenState extends ConsumerState<NewParcelScreen> {
         status: status!,
       );
 
-      final parcelRepositoryProvider = Provider<ParcelRepository>((ref) {
-        return ParcelRepositoryImpl();
-      });
-
-      final createParcelUseCase = CreateParcelUseCase(ref.read(parcelRepositoryProvider));
-      createParcelUseCase.execute(newParcel);
+      final parcelRepository = ref.read(parcelRepositoryProvider);
+      final createParcelUseCase = CreateParcelUseCase(parcelRepository);
+      await createParcelUseCase.execute(newParcel);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Lote creado con éxito')),

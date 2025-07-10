@@ -15,6 +15,7 @@ class ParcelsScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Mis Lotes')),
       body: parcelsAsync.when(
         data: (parcels) => ListView.builder(
+          padding: const EdgeInsets.all(8),
           itemCount: parcels.length,
           itemBuilder: (context, index) => ParcelCard(parcel: parcels[index]),
         ),
@@ -22,13 +23,14 @@ class ParcelsScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const NewParcelScreen(),
+              builder: (_) => const NewParcelScreen(),
             ),
           );
+          final _ = ref.refresh(parcelProvider);
         },
         backgroundColor: const Color(0xFF8B0000),
         child: const Icon(Icons.add, color: Colors.white),
