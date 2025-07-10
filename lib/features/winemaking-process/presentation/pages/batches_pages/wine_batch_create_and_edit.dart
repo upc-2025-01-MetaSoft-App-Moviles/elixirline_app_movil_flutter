@@ -1,37 +1,37 @@
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/wine_batch_service.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/wine_batch.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class CreateWineBatchPage extends StatefulWidget {
-  final WineBatch? initialData; // null si es creación
+class CreateAndEditWineBatchPage extends StatefulWidget {
+  final WineBatch? initialData;
 
-  const CreateWineBatchPage({super.key, this.initialData});
+  const CreateAndEditWineBatchPage({super.key, this.initialData});
 
   @override
-  State<CreateWineBatchPage> createState() => _CreateOrEditWineBatchPageState();
+  State<CreateAndEditWineBatchPage> createState() =>
+      _CreateOrEditWineBatchPageState();
 }
 
-class _CreateOrEditWineBatchPageState extends State<CreateWineBatchPage> {
-  // Inyectamos el servicio de lotes de vino aquí si es necesario
+class _CreateOrEditWineBatchPageState extends State<CreateAndEditWineBatchPage> {
+  
   final wineBatchService = WineBatchService('/wine-batch');
-
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _internalCodeController;
-  late final TextEditingController _campaignController;
   late final TextEditingController _vineyardController;
   late final TextEditingController _grapeVarietyController;
   late final TextEditingController _createdByController;
+  late final TextEditingController _campaignController;
+
+
 
   @override
   void initState() {
     super.initState();
     _internalCodeController = TextEditingController(
       text: widget.initialData?.internalCode ?? '',
-    );
-    _campaignController = TextEditingController(
-      text: widget.initialData?.campaign ?? '',
     );
     _vineyardController = TextEditingController(
       text: widget.initialData?.vineyard ?? '',
@@ -42,20 +42,25 @@ class _CreateOrEditWineBatchPageState extends State<CreateWineBatchPage> {
     _createdByController = TextEditingController(
       text: widget.initialData?.createdBy ?? '',
     );
+    _campaignController = TextEditingController(
+      text: widget.initialData?.campaign ?? '',
+    );
+    
   }
 
   @override
   void dispose() {
     _internalCodeController.dispose();
-    _campaignController.dispose();
     _vineyardController.dispose();
     _grapeVarietyController.dispose();
     _createdByController.dispose();
+    _campaignController.dispose();
     super.dispose();
   }
 
   void _onSave() async {
     if (_formKey.currentState!.validate()) {
+     
       final data = {
         'internalCode': _internalCodeController.text.trim(),
         'campaign': _campaignController.text.trim(),
@@ -66,21 +71,21 @@ class _CreateOrEditWineBatchPageState extends State<CreateWineBatchPage> {
 
       try {
         if (widget.initialData == null) {
-          // Crear lote
           final newBatch = await wineBatchService.createWineBatch(data);
           Navigator.pop(context, newBatch);
         } else {
-          // Editar lote
-          final id = int.tryParse(widget.initialData!.id);
-          if (id != null) {
-            await wineBatchService.updateWineBatch(id, data);
-            Navigator.pop(context, 'updated');
+          final id = widget.initialData!.id;
+          if (id.isNotEmpty) {
+            final updatedBatch = await wineBatchService.updateWineBatch(id, data);
+            Navigator.pop(context, updatedBatch);
           } else {
             throw Exception('ID inválido para actualizar');
           }
         }
       } catch (e) {
-        print('Error al guardar el lote: $e');
+        if (kDebugMode) {
+          print('Error al guardar el lote: $e');
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al guardar el lote')),
         );
@@ -104,7 +109,6 @@ class _CreateOrEditWineBatchPageState extends State<CreateWineBatchPage> {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
@@ -144,4 +148,12 @@ class _CreateOrEditWineBatchPageState extends State<CreateWineBatchPage> {
       ),
     );
   }
+
+
 }
+
+
+
+
+
+

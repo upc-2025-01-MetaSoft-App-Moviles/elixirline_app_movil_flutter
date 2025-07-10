@@ -43,13 +43,52 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
         filteredBatches = wineBatches;
       });
     } else {
-      // Filtrar lotes por código de loteo 2025
+      // Filtrar lotes por código
       setState(() {
         filteredBatches = wineBatches.where((batch) {
           return batch.vineyard.toLowerCase().contains(query) ||
               batch.internalCode.toLowerCase().contains(query);
         }).toList();
       });
+    }
+  }
+
+  void _addNewBatch(WineBatchDTO batch) {
+    setState(() {
+      wineBatches.insert(0, batch);
+      _filterBatches();
+    });
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Lote creado exitosamente')));
+  }
+
+  void _updateBatch(WineBatchDTO updatedBatch) {
+    setState(() {
+      final index1 = wineBatches.indexWhere((b) => b.id == updatedBatch.id);
+      if (index1 != -1) wineBatches[index1] = updatedBatch;
+
+      final index2 = filteredBatches.indexWhere((b) => b.id == updatedBatch.id);
+      if (index2 != -1) filteredBatches[index2] = updatedBatch;
+    });
+  }
+
+  Future<void> _handleCreateOrEditResult() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CreateAndEditWineBatchPage()),
+    );
+
+    if (result != null) {
+      if (result is WineBatchDTO) {
+        _addNewBatch(result);
+      } else if (result == 'updated') {
+        await loadWineBatches();
+        _filterBatches();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Lote actualizado exitosamente')),
+        );
+      }
     }
   }
 
@@ -105,34 +144,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
           // Botón flotante para crear nuevo lote
           floatingActionButton: FloatingActionButton(
             backgroundColor: ColorPalette.vinoTinto,
-            onPressed: () async {
-              final newBatch = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CreateWineBatchPage()),
-              );
-
-              if (newBatch != null) {
-                if (newBatch is WineBatchDTO) {
-                  // Insertar directamente si es creación
-                  setState(() {
-                    wineBatches.insert(0, newBatch);
-                    _filterBatches();
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Lote creado exitosamente')),
-                  );
-                } else if (newBatch == 'updated') {
-                  // Volver a cargar si fue edición
-                  await loadWineBatches();
-                  _filterBatches();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Lote actualizado exitosamente'),
-                    ),
-                  );
-                }
-              }
-            },
+            onPressed: _handleCreateOrEditResult,
             child: const Icon(Icons.add, color: Colors.white),
             tooltip: 'Crear nuevo lote',
           ),
@@ -179,7 +191,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
           : ListView.builder(
               itemCount: filteredBatches.length,
               itemBuilder: (context, index) {
-                final batch = filteredBatches[index];
+                var batch = filteredBatches[index];
                 return Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -193,15 +205,19 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
                   child: InkWell(
                     splashColor: ColorPalette.vinoTinto.withOpacity(0.2),
                     highlightColor: ColorPalette.vinoTinto.withOpacity(0.1),
-                    onTap: () {
-                      // Navegar a la página de detalles del lote de vino
-                      Navigator.push(
+                    onTap: () async {
+                      final updatedBatch = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
                               WineBatchDetailsPage(batch: batch),
                         ),
                       );
+
+                      if (updatedBatch != null &&
+                          updatedBatch is WineBatchDTO) {
+                        _updateBatch(updatedBatch);
+                      }
                     },
 
                     child: Padding(

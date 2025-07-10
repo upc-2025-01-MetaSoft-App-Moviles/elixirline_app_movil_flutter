@@ -68,22 +68,29 @@ class WineBatchService {
         });
   }
 
-  Future<void> updateWineBatch(int id, Map<String, dynamic> batchData) {
-    return http
-        .put(
-          Uri.parse("$_baseUrl/$id"),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(batchData),
-        )
-        .then((response) {
-          if (response.statusCode != HttpStatus.noContent) {
-            throw HttpException(
-              "Error updating wine batch: ${response.statusCode}",
-            );
-          }
-        })
-        .catchError((error) {
-          throw Exception("Unexpected error in updateWineBatch: $error");
-        });
+  Future<WineBatchDTO> updateWineBatch(String id, Map<String, dynamic> batchData) {
+  return http
+    .put(
+      Uri.parse("$_baseUrl/$id"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(batchData),
+    )
+    .then((response) {
+      if (response.statusCode == HttpStatus.ok || response.statusCode == HttpStatus.noContent) {
+        if (response.body.isNotEmpty) {
+          final map = jsonDecode(response.body);
+          return WineBatchDTO.fromJson(map);
+        } else {
+          throw Exception("Respuesta vacía del servidor.");
+        }
+      } else {
+        throw HttpException("Error updating wine batch: ${response.statusCode}");
+      }
+    })
+    .catchError((error) {
+      throw Exception("Unexpected error in updateWineBatch: $error");
+    });
   }
+
+
 }
