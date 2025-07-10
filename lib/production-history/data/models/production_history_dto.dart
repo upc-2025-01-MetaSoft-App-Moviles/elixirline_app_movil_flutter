@@ -29,15 +29,11 @@ class ProductionHistoryDto {
     qualityMetrics: qualityMetrics.toDomain(),
   );
 }
-
-// Método auxiliar para parsear fechas
 DateTime _parseDate(String dateString) {
   try {
-    // Intentar formato ISO primero (YYYY-MM-DD)
     return DateTime.parse(dateString);
   } catch (e) {
     try {
-      // Intentar formato DD-MM-YYYY o MM-DD-YYYY
       final formats = [
         DateFormat('dd-MM-yyyy'),
         DateFormat('MM-dd-yyyy'),
@@ -52,7 +48,6 @@ DateTime _parseDate(String dateString) {
         }
       }
       
-      // Si no funciona ningún formato, usar fecha actual
       print('No se pudo parsear la fecha: $dateString');
       return DateTime.now();
     } catch (_) {

@@ -32,6 +32,40 @@ class ProductionHistoryService {
     }
   }
 
+  /// Crea un nuevo registro de producción
+Future<ProductionHistoryDto> createProductionRecord(Map<String, dynamic> data) async {
+  try {
+    final uri = Uri.parse(baseUrl);
+    
+    // Debug: imprimir URL y datos
+    print('URL: $uri');
+    print('Datos JSON: ${json.encode(data)}');
+    
+    final response = await client.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: json.encode(data),
+    );
+    
+    // Debug: imprimir respuesta completa
+    print('Status Code: ${response.statusCode}');
+    print('Response Headers: ${response.headers}');
+    print('Response Body: ${response.body}');
+    
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return ProductionHistoryDto.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Error del servidor (${response.statusCode}): ${response.body}');
+    }
+  } catch (e) {
+    print('Error en createProductionRecord: $e');
+    throw Exception('Error de conexión: $e');
+  }
+}
+
   /// Obtiene un historial de producción por RecordId
   Future<ProductionHistoryDto> getProductionHistoryByRecordId(String recordId) async {
     try {
