@@ -1,4 +1,5 @@
 import '../../domain/entities/production_history.dart';
+import 'package:intl/intl.dart'; // Añade esta dependencia a pubspec.yaml
 
 class ProductionHistoryDto {
   final String recordId;
@@ -19,15 +20,46 @@ class ProductionHistoryDto {
 
   // Convertir DTO a entidad de dominio
   ProductionHistory toDomain() {
-    return ProductionHistory(
-      recordId: recordId,
-      batchId: batchId,
-      startDate: DateTime.parse(startDate),
-      endDate: DateTime.parse(endDate),
-      volumeProduced: volumeProduced,
-      qualityMetrics: qualityMetrics.toDomain(),
-    );
+  return ProductionHistory(
+    recordId: recordId,
+    batchId: batchId,
+    startDate: _parseDate(startDate),
+    endDate: _parseDate(endDate),
+    volumeProduced: volumeProduced,
+    qualityMetrics: qualityMetrics.toDomain(),
+  );
+}
+
+// Método auxiliar para parsear fechas
+DateTime _parseDate(String dateString) {
+  try {
+    // Intentar formato ISO primero (YYYY-MM-DD)
+    return DateTime.parse(dateString);
+  } catch (e) {
+    try {
+      // Intentar formato DD-MM-YYYY o MM-DD-YYYY
+      final formats = [
+        DateFormat('dd-MM-yyyy'),
+        DateFormat('MM-dd-yyyy'),
+        DateFormat('yyyy-MM-dd'),
+      ];
+      
+      for (final format in formats) {
+        try {
+          return format.parse(dateString);
+        } catch (_) {
+          continue;
+        }
+      }
+      
+      // Si no funciona ningún formato, usar fecha actual
+      print('No se pudo parsear la fecha: $dateString');
+      return DateTime.now();
+    } catch (_) {
+      return DateTime.now();
+    }
   }
+}
 
   // Crear DTO desde JSON
   factory ProductionHistoryDto.fromJson(Map<String, dynamic> json) {
