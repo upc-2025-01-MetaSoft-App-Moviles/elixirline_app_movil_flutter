@@ -16,7 +16,7 @@
 */
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/reception_stage.dart';
 
-class ReceptionStageDTO {
+class ReceptionStageDto {
   final String batchId;
   final String stageType;
   final String startedAt;
@@ -29,7 +29,7 @@ class ReceptionStageDTO {
   final double quantityKg;
   final String observations;
 
-  ReceptionStageDTO({
+  ReceptionStageDto({
     required this.batchId,
     required this.stageType,
     required this.startedAt,
@@ -43,8 +43,8 @@ class ReceptionStageDTO {
     required this.observations,
   });
 
-  factory ReceptionStageDTO.fromJson(Map<String, dynamic> json) {
-    return ReceptionStageDTO(
+  factory ReceptionStageDto.fromJson(Map<String, dynamic> json) {
+    return ReceptionStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
       startedAt: json['startedAt'] ?? '',

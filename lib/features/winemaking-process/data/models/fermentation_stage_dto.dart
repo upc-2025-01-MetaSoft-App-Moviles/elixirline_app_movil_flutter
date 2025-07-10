@@ -22,7 +22,7 @@
 
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/fermentation_stage.dart';
 
-class FermentationStageDTO {
+class FermentationStageDto {
   final String batchId;
   final String stageType;
   final String startedAt;
@@ -40,7 +40,7 @@ class FermentationStageDTO {
   final String tankCode;
   final String observations;
 
-  FermentationStageDTO({
+  FermentationStageDto({
     required this.batchId,
     required this.stageType,
     required this.startedAt,
@@ -60,8 +60,8 @@ class FermentationStageDTO {
   });
 
 
-  factory FermentationStageDTO.fromJson(Map<String, dynamic> json) {
-    return FermentationStageDTO(
+  factory FermentationStageDto.fromJson(Map<String, dynamic> json) {
+    return FermentationStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
       startedAt: json['startedAt'] ?? '',

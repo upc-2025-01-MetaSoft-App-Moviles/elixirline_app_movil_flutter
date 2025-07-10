@@ -19,7 +19,7 @@
 */
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/pressing_stage.dart';
 
-class PressingStageDTO {
+class PressingStageDto {
   final String batchId;
   final String stageType;
   final String startedAt;
@@ -34,7 +34,7 @@ class PressingStageDTO {
   final String mustUsage;
   final String observations;
 
-  PressingStageDTO({
+  PressingStageDto({
     required this.batchId,
     required this.stageType,
     required this.startedAt,
@@ -51,8 +51,8 @@ class PressingStageDTO {
   });
 
 
-  factory PressingStageDTO.fromJson(Map<String, dynamic> json) {
-    return PressingStageDTO(
+  factory PressingStageDto.fromJson(Map<String, dynamic> json) {
+    return PressingStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
       startedAt: json['startedAt'] ?? '',

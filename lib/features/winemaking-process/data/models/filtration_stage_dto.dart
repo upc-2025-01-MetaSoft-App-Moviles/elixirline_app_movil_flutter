@@ -25,7 +25,7 @@
 */
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/filtration_stage.dart';
 
-class FiltrationStageDTO {
+class FiltrationStageDto {
   final String batchId;
   final String stageType;
   final String startedAt;
@@ -46,7 +46,7 @@ class FiltrationStageDTO {
   final bool filterChanged;
   final String changeReason;
 
-  FiltrationStageDTO({
+  FiltrationStageDto({
     required this.batchId,
     required this.stageType,
     required this.startedAt,
@@ -69,8 +69,8 @@ class FiltrationStageDTO {
   });
 
 
-  factory FiltrationStageDTO.fromJson(Map<String, dynamic> json) {
-    return FiltrationStageDTO(
+  factory FiltrationStageDto.fromJson(Map<String, dynamic> json) {
+    return FiltrationStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
       startedAt: json['startedAt'] ?? '',

@@ -20,7 +20,7 @@
 */
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/correction_stage.dart';
 
-class CorrectionStageDTO {
+class CorrectionStageDto {
   final String batchId;
   final String stageType;
   final String startedAt;
@@ -38,7 +38,7 @@ class CorrectionStageDTO {
   final double so2AddedMgL;
   final String justification;
 
-  CorrectionStageDTO({
+  CorrectionStageDto({
     required this.batchId,
     required this.stageType,
     required this.startedAt,
@@ -57,8 +57,8 @@ class CorrectionStageDTO {
     required this.justification,
   });
 
-  factory CorrectionStageDTO.fromJson(Map<String, dynamic> json) {
-    return CorrectionStageDTO(
+  factory CorrectionStageDto.fromJson(Map<String, dynamic> json) {
+    return CorrectionStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
       startedAt: json['startedAt'] ?? '',

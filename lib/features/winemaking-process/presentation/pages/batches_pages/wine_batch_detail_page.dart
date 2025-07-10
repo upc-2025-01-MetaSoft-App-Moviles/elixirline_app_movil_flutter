@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class WineBatchDetailsPage extends StatefulWidget {
-  
   final WineBatchDTO batch;
 
   const WineBatchDetailsPage({super.key, required this.batch});
@@ -15,6 +14,20 @@ class WineBatchDetailsPage extends StatefulWidget {
 }
 
 class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
+  
+  /*
+  Etapas de vinificación:
+  1. "stages-reception": 
+  2. "stages-correction"
+  3. "stages-fermentation":
+  4. "stages-pressing":
+  5. "stages-clarification":
+  6. "stages-aging":
+  7. "stages-filtration":
+  8. "stages-bottling":
+  */
+
+  // Servicio de la primera etapa de vinificación 
   late WineBatchDTO _batch;
 
   @override
@@ -27,7 +40,8 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
     final result = await Navigator.push<WineBatchDTO>(
       context,
       MaterialPageRoute(
-        builder: (_) => CreateAndEditWineBatchPage(initialData: _batch.toDomain()),
+        builder: (_) =>
+            CreateAndEditWineBatchPage(initialData: _batch.toDomain()),
       ),
     );
 
@@ -65,10 +79,28 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildBatchInfoCard(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildStagesHeader(),
-              const Divider(),
-              // Aquí podrías agregar la lista de etapas
+              Divider(),
+
+              // Lista de etapas de vinificación
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'Etapas de Vinificación',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: ColorPalette.vinoTinto,
+                  ),
+                ),
+              ),
+              // Aquí se mostrarían las etapas registradas
+              // Por ahora, solo un texto de ejemplo
+              Text(
+                'No hay etapas registradas aún.',
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+              ),
             ],
           ),
         ),
@@ -90,7 +122,10 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
               children: [
                 Text(
                   _batch.internalCode,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit, color: ColorPalette.vinoTinto),
@@ -100,9 +135,21 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
             ),
             const SizedBox(height: 8),
             const Divider(),
-            _infoRow(icon: Icons.landscape, label: 'Viñedo', value: _batch.vineyard),
-            _infoRow(icon: Icons.calendar_today, label: 'Campaña', value: _batch.campaign),
-            _infoRow(icon: Icons.eco, label: 'Variedad de uva', value: _batch.grapeVariety),
+            _infoRow(
+              icon: Icons.landscape,
+              label: 'Viñedo',
+              value: _batch.vineyard,
+            ),
+            _infoRow(
+              icon: Icons.calendar_today,
+              label: 'Campaña',
+              value: _batch.campaign,
+            ),
+            _infoRow(
+              icon: Icons.eco,
+              label: 'Variedad de uva',
+              value: _batch.grapeVariety,
+            ),
             _infoRow(
               iconData: FontAwesomeIcons.user,
               label: 'Creado por',
@@ -138,14 +185,18 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Etapas registradas:',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Text(
+          'Etapas de Vinificación',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: ColorPalette.vinoTinto,
+          ),
         ),
         ElevatedButton.icon(
           onPressed: () {
-            // Lógica para agregar etapa
-            print('Agregar nueva etapa');
+            // Agregar un nuevo registro de la etapa que sigue en el proceso de vinificación son o etapas de vinificación
+          
           },
           icon: const Icon(Icons.add),
           label: const Text('Agregar'),
@@ -158,6 +209,3 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
     );
   }
 }
-
-
-
