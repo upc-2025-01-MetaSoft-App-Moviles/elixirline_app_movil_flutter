@@ -204,18 +204,14 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
     }
   }
 
-  // Función utilitaria para validar y parsear números de forma segura
-  double _parseDouble(String value, String fieldName) {
+  // Función utilitaria para parsear números opcionales
+  double _parseOptionalDouble(String value) {
     if (value.trim().isEmpty) {
-      throw Exception('$fieldName es requerido');
+      return 0.0; // Valor por defecto
     }
     
     final parsed = double.tryParse(value.trim());
-    if (parsed == null) {
-      throw Exception('$fieldName debe ser un número válido');
-    }
-    
-    return parsed;
+    return parsed ?? 0.0;
   }
 
   Future<void> _onSave() async {
@@ -226,7 +222,7 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
     });
 
     try {
-      // Validar que los campos numéricos tengan valores válidos
+      // Parsear campos numéricos (todos opcionales excepto validaciones específicas)
       double initialSugarLevel;
       double finalSugarLevel;
       double initialPh;
@@ -235,18 +231,19 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
       double temperatureMin;
 
       try {
-        initialSugarLevel = _parseDouble(_initialSugarLevelController.text, 'Nivel inicial de azúcar');
-        finalSugarLevel = _parseDouble(_finalSugarLevelController.text, 'Nivel final de azúcar');
-        initialPh = _parseDouble(_initialPhController.text, 'pH inicial');
-        finalPh = _parseDouble(_finalPhController.text, 'pH final');
-        temperatureMax = _parseDouble(_temperatureMaxController.text, 'Temperatura máxima');
-        temperatureMin = _parseDouble(_temperatureMinController.text, 'Temperatura mínima');
+        // Usar parseado opcional para todos los campos numéricos
+        initialSugarLevel = _parseOptionalDouble(_initialSugarLevelController.text);
+        finalSugarLevel = _parseOptionalDouble(_finalSugarLevelController.text);
+        initialPh = _parseOptionalDouble(_initialPhController.text);
+        finalPh = _parseOptionalDouble(_finalPhController.text);
+        temperatureMax = _parseOptionalDouble(_temperatureMaxController.text);
+        temperatureMin = _parseOptionalDouble(_temperatureMinController.text);
         
-        // Validaciones adicionales
-        if (initialPh < 0 || initialPh > 14) {
+        // Validaciones específicas solo si hay valores
+        if (initialPh > 0 && (initialPh < 0 || initialPh > 14)) {
           throw Exception('El pH inicial debe estar entre 0 y 14');
         }
-        if (finalPh < 0 || finalPh > 14) {
+        if (finalPh > 0 && (finalPh < 0 || finalPh > 14)) {
           throw Exception('El pH final debe estar entre 0 y 14');
         }
         if (initialSugarLevel < 0) {
@@ -255,14 +252,14 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
         if (finalSugarLevel < 0) {
           throw Exception('El nivel final de azúcar debe ser mayor o igual a 0');
         }
-        if (temperatureMin > temperatureMax) {
+        if (temperatureMax > 0 && temperatureMin > 0 && temperatureMin > temperatureMax) {
           throw Exception('La temperatura mínima no puede ser mayor que la máxima');
         }
       } catch (e) {
         throw Exception(e.toString().replaceFirst('Exception: ', ''));
       }
 
-      // Validar campos de texto requeridos
+      // Validar campos de texto - solo startedAt es obligatorio para crear
       final yeastUsed = _yeastUsedController.text.trim();
       final fermentationType = _fermentationTypeController.text.trim();
       final tankCode = _tankCodeController.text.trim();
@@ -270,20 +267,9 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
       final completedBy = _completedByController.text.trim();
       final observations = _observationsController.text.trim();
 
-      if (yeastUsed.isEmpty) {
-        throw Exception('El campo "Levadura utilizada" es requerido');
-      }
-      if (fermentationType.isEmpty) {
-        throw Exception('El tipo de fermentación es requerido');
-      }
-      if (tankCode.isEmpty) {
-        throw Exception('El código del tanque es requerido');
-      }
+      // Solo validar fecha de inicio como obligatoria
       if (startedAtRaw.isEmpty) {
         throw Exception('La fecha de inicio es requerida');
-      }
-      if (completedBy.isEmpty) {
-        throw Exception('El campo "Realizado por" es requerido');
       }
 
       // Convertir la fecha al formato requerido por el backend (dd/MM/yyyy)
@@ -297,11 +283,11 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
       Map<String, dynamic> data;
       
       if (widget.initialData == null) {
-        // Estructura para CREAR nueva etapa
+        // Estructura para CREAR nueva etapa (usar nombres específicos para crear)
         data = {
           'yeastUsed': yeastUsed,
-          'initialSugarLevel': initialSugarLevel,
-          'finalSugarLevel': finalSugarLevel,
+          'initialBrix': initialSugarLevel,
+          'finalBrix': finalSugarLevel,
           'initialPh': initialPh,
           'finalPh': finalPh,
           'temperatureMax': temperatureMax,
@@ -315,18 +301,19 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
       } else {
         // Estructura para EDITAR etapa existente (usar PascalCase)
         data = {
+          'StartedAt': startedAt,
+          'CompletedAt': _isCompleted ? startedAt : '', // Usar la misma fecha si está completada, vacío si no
+          'CompletedBy': completedBy,
+          'IsCompleted': _isCompleted,
           'YeastUsed': yeastUsed,
           'InitialSugarLevel': initialSugarLevel,
           'FinalSugarLevel': finalSugarLevel,
           'InitialPh': initialPh,
           'FinalPh': finalPh,
-          'TemperatureMax': temperatureMax,
           'TemperatureMin': temperatureMin,
+          'TemperatureMax': temperatureMax,
           'FermentationType': fermentationType,
           'TankCode': tankCode,
-          'StartedAt': startedAt,
-          'CompletedBy': completedBy,
-          'IsCompleted': _isCompleted,
           'Observations': observations,
         };
       }
@@ -552,9 +539,7 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
                           ),
                         ),
                         validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Este campo es requerido';
-                          }
+                          // Campo opcional - no validar si está vacío
                           return null;
                         },
                       ),
@@ -693,7 +678,7 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
                             child: TextFormField(
                               controller: _initialSugarLevelController,
                               decoration: InputDecoration(
-                                labelText: 'Azúcar Inicial (°Brix) *',
+                                labelText: 'Azúcar Inicial (°Brix)',
                                 labelStyle: TextStyle(color: ColorPalette.vinoTinto),
                                 prefixIcon: Icon(Icons.water_drop, color: ColorPalette.vinoTinto),
                                 border: OutlineInputBorder(
@@ -709,11 +694,11 @@ class _FermentationCreateAndEditPageState extends State<FermentationCreateAndEdi
                                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                               ],
                               validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Requerido';
-                                }
-                                if (double.tryParse(value.trim()) == null) {
-                                  return 'Número inválido';
+                                // Campo opcional - solo validar formato si tiene contenido
+                                if (value != null && value.trim().isNotEmpty) {
+                                  if (double.tryParse(value.trim()) == null) {
+                                    return 'Número inválido';
+                                  }
                                 }
                                 return null;
                               },
