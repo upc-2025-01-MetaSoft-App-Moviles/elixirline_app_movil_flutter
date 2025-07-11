@@ -16,14 +16,6 @@ import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/mo
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/pressing_stage_dto.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/reception_stage_dto.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/wine_batch_dto.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/aging_stage.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/bottling_stage.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/clarification_stage.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/correction_stage.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/fermentation_stage.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/filtration_stage.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/pressing_stage.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/reception_stage.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batch_create_and_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
