@@ -1,5 +1,29 @@
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/aging_stage_service.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/bottling_stage_service.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/clarification_stage_service.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/correction_stage_service.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/fermentation_stage_service.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/filtration_stage_service.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/pressing_stage_service.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/datasources/reception_stage_service.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/aging_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/bottling_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/clarification_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/correction_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/fermentation_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/filtration_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/pressing_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/reception_stage_dto.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/wine_batch_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/aging_stage.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/bottling_stage.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/clarification_stage.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/correction_stage.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/fermentation_stage.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/filtration_stage.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/pressing_stage.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/domain/entities/reception_stage.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batch_create_and_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -14,26 +38,66 @@ class WineBatchDetailsPage extends StatefulWidget {
 }
 
 class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
-  
-  /*
-  Etapas de vinificación:
-  1. "stages-reception": 
-  2. "stages-correction"
-  3. "stages-fermentation":
-  4. "stages-pressing":
-  5. "stages-clarification":
-  6. "stages-aging":
-  7. "stages-filtration":
-  8. "stages-bottling":
-  */
-
-  // Servicio de la primera etapa de vinificación 
+  // Servicio de la primera etapa de vinificación
   late WineBatchDTO _batch;
+
+  // Servicios para las etapas de vinificación
+  final ReceptionStageService _receptionStageService = ReceptionStageService(
+    'wine-batch',
+  );
+  final CorrectionStageService _correctionStageService = CorrectionStageService(
+    'wine-batch',
+  );
+  final FermentationStageService _fermentationStageService =
+      FermentationStageService('wine-batch');
+  final PressingStageService _pressingStageService = PressingStageService(
+    'wine-batch',
+  );
+  final ClarificationStageService _clarificationStageService =
+      ClarificationStageService('wine-batch');
+  final AgingStageService _agingStageService = AgingStageService('wine-batch');
+  final FiltrationStageService _filtrationStageService = FiltrationStageService(
+    'wine-batch',
+  );
+  final BottlingStageService _bottlingStageService = BottlingStageService(
+    'wine-batch',
+  );
+
+  // Instancias de las etapas de vinificación
+  late ReceptionStageDto receptionStageDto;
+  late CorrectionStageDto correctionStageDto;
+  late FermentationStageDto fermentationStageDto;
+  late PressingStageDto pressingStageDto;
+  late ClarificationStageDto clarificationStageDto;
+  late AgingStageDto agingStageDto;
+  late FiltrationStageDto filtrationStageDto;
+  late BottlingStageDto bottlingStageDto;
+
+  Future<void> _loadStages() async {
+
+    // Cargar las etapas de vinificación desde los servicios
+    try {
+      receptionStageDto = await _receptionStageService.getReceptionStage(_batch.id);
+      correctionStageDto = await _correctionStageService.getCorrectionStage(_batch.id);
+      fermentationStageDto = await _fermentationStageService.getFermentationStage(_batch.id);
+      pressingStageDto = await _pressingStageService.getPressingStage(_batch.id);
+      clarificationStageDto = await _clarificationStageService.getClarificationStage(_batch.id);
+      agingStageDto = await _agingStageService.getAgingStage(_batch.id);
+      filtrationStageDto = await _filtrationStageService.getFiltrationStage(_batch.id);
+      bottlingStageDto = await _bottlingStageService.getBottlingStage(_batch.id);
+    } catch (e) {
+      // Manejo de errores
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar las etapas: $e')),
+      );
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _batch = widget.batch;
+    _loadStages(); // ← nuevo método para traer etapas
   }
 
   Future<void> _navigateToEditBatch() async {
@@ -55,6 +119,9 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
       );
     }
   }
+
+  // Método para navegar a la vista de deatalles de la etapa de vinificación
+  Future<void> _navigateToStageDetails(String stageType) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -82,25 +149,57 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
               SizedBox(height: 20),
               _buildStagesHeader(),
               Divider(),
+              SizedBox(height: 10),
 
-              // Lista de etapas de vinificación
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  'Etapas de Vinificación',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: ColorPalette.vinoTinto,
-                  ),
-                ),
+              // Tarjetas de las etapas de vinificación
+              _buildStageCard(
+                stageType: 'Recepción',
+                stageData: receptionStageDto,
+                onTap: () => _navigateToStageDetails('reception'),
               ),
-              // Aquí se mostrarían las etapas registradas
-              // Por ahora, solo un texto de ejemplo
-              Text(
-                'No hay etapas registradas aún.',
-                style: TextStyle(fontSize: 16, color: Colors.black54),
+
+              _buildStageCard(
+                stageType: 'Corrección',
+                stageData: correctionStageDto,
+                onTap: () => _navigateToStageDetails('correction'),
               ),
+
+              _buildStageCard(
+                stageType: 'Fermentación',
+                stageData: fermentationStageDto,
+                onTap: () => _navigateToStageDetails('fermentation'),
+              ),
+
+              _buildStageCard(
+                stageType: 'Prensado',
+                stageData: pressingStageDto,
+                onTap: () => _navigateToStageDetails('pressing'),
+              ),
+
+              _buildStageCard(
+                stageType: 'Clarificación',
+                stageData: clarificationStageDto,
+                onTap: () => _navigateToStageDetails('clarification'),
+              ),
+
+              _buildStageCard(
+                stageType: 'Aging',
+                stageData: agingStageDto,
+                onTap: () => _navigateToStageDetails('aging'),
+              ),
+
+              _buildStageCard(
+                stageType: 'Filtración',
+                stageData: filtrationStageDto,
+                onTap: () => _navigateToStageDetails('filtration'),
+              ),
+
+              _buildStageCard(
+                stageType: 'Embotellado',
+                stageData: bottlingStageDto,
+                onTap: () => _navigateToStageDetails('bottling'),
+              ),
+
             ],
           ),
         ),
@@ -196,7 +295,6 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
         ElevatedButton.icon(
           onPressed: () {
             // Agregar un nuevo registro de la etapa que sigue en el proceso de vinificación son o etapas de vinificación
-          
           },
           icon: const Icon(Icons.add),
           label: const Text('Agregar'),
@@ -208,4 +306,26 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
       ],
     );
   }
+
+
+  Widget _buildStageCard({
+    required String stageType,
+    required dynamic stageData,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: ListTile(
+        title: Text(stageType, style: const TextStyle(fontSize: 18)),
+        subtitle: stageData != null
+            ? Text('Fecha de inicio: ${stageData.startDate ?? 'No disponible'}\n'
+                'Estado: ${stageData.isCompleted ? 'Completado' : 'En progreso'}')
+            : const Text('No disponible'),
+        trailing: Icon(Icons.arrow_forward_ios, color: ColorPalette.vinoTinto),
+        onTap: onTap,
+      ),
+    );
+  }
+
 }
