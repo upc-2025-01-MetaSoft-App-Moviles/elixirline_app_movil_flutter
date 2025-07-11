@@ -119,7 +119,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
           appBar: AppBar(
             backgroundColor: ColorPalette.vinoTinto,
             foregroundColor: Colors.white,
-            title: const Center(
+            title: Center(
               child: Text(
                 'Wine Batches',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -128,14 +128,14 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
           ),
 
           body: Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSearchBar(),
-                const SizedBox(height: 16.0),
+                SizedBox(height: 16.0),
                 _buildTotalBatches(),
-                const Divider(),
+                Divider(),
                 _buildFilteredBatches(),
               ],
             ),
@@ -145,7 +145,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
           floatingActionButton: FloatingActionButton(
             backgroundColor: ColorPalette.vinoTinto,
             onPressed: _handleCreateOrEditResult,
-            child: const Icon(Icons.add, color: Colors.white),
+            child: Icon(Icons.add, color: Colors.white),
             tooltip: 'Crear nuevo lote',
           ),
         ),
@@ -159,7 +159,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
       controller: searchController,
       decoration: InputDecoration(
         hintText: 'Buscar por viñedo de origen',
-        prefixIcon: const Icon(Icons.search),
+        prefixIcon: Icon(Icons.search),
         labelText: 'Buscar por viñedo de origen',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
       ),
@@ -170,10 +170,10 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
   /// Widget para mostrar el total de lotes de vino
   Widget _buildTotalBatches() {
     return Container(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(8.0),
       child: Text(
         'Total de lotes de vino: ${filteredBatches.length}',
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -200,7 +200,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: ColorPalette.vinoTinto.withOpacity(0.1),
               borderRadius: BorderRadius.circular(50),
@@ -211,7 +211,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
               color: ColorPalette.vinoTinto.withOpacity(0.6),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Text(
             'No se encontraron lotes de vino',
             style: TextStyle(
@@ -236,7 +236,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
 
   Widget _buildBatchCard(WineBatchDTO batch, int index) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
+      margin: EdgeInsets.only(bottom: 16.0),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -261,7 +261,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
               }
             },
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -285,7 +285,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
                                 size: 20,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,9 +298,9 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
                                       color: ColorPalette.vinoTinto,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
+                                    padding: EdgeInsets.symmetric(
                                       horizontal: 8,
                                       vertical: 2,
                                     ),
@@ -385,7 +385,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
 
   Widget _buildInfoItem(IconData icon, String label, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withOpacity(0.05),
         borderRadius: BorderRadius.circular(10),
@@ -401,7 +401,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
                 color: color,
                 size: 16,
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Expanded(
                 child: Text(
                   label,
@@ -414,7 +414,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             value,
             style: TextStyle(
@@ -434,7 +434,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(4),
+          padding: EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(4),
@@ -445,7 +445,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
             color: Colors.grey.shade600,
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Text(
           '$label: ',
           style: TextStyle(
@@ -457,7 +457,7 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),

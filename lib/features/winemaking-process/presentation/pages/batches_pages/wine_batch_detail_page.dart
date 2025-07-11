@@ -17,7 +17,9 @@ import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/mo
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/reception_stage_dto.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/wine_batch_dto.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batch_create_and_edit.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/correction_pages/correction_create_and_edit_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/correction_pages/correction_details_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/fermentation_pages/fermentation_create_and_edit_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/fermentation_pages/fermentation_details_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/reception_pages/reception_create_and_edit_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/reception_pages/reception_details_page.dart';
@@ -63,81 +65,81 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
       // Se pueden ejecutar todas en paralelo si deseas más rendimiento:
       final futures = <Future<void>>[];
 
-      debugPrint('🔄 Cargando etapas para el lote: ${_batch.id}');
+      debugPrint('Cargando etapas para el lote: ${_batch.id}');
 
       futures.add(
         _safeLoad(() async {
-          debugPrint('🔄 Cargando etapa de recepción...');
+          debugPrint('Cargando etapa de recepción...');
           receptionStageDto = await _receptionStageService.getReceptionStage(
             _batch.id,
           );
-          debugPrint('✅ Etapa de recepción cargada');
+          debugPrint('Etapa de recepción cargada');
         }),
       );
 
       futures.add(
         _safeLoad(() async {
-          debugPrint('🔄 Cargando etapa de corrección...');
+          debugPrint('Cargando etapa de corrección...');
           correctionStageDto = await _correctionStageService.getCorrectionStage(
             _batch.id,
           );
-          debugPrint('✅ Etapa de corrección cargada');
+          debugPrint('Etapa de corrección cargada');
         }),
       );
 
       futures.add(
         _safeLoad(() async {
-          debugPrint('🔄 Cargando etapa de fermentación...');
+          debugPrint('Cargando etapa de fermentación...');
           fermentationStageDto = await _fermentationStageService
               .getFermentationStage(_batch.id);
-          debugPrint('✅ Etapa de fermentación cargada');
+          debugPrint('Etapa de fermentación cargada');
         }),
       );
 
       futures.add(
         _safeLoad(() async {
-          debugPrint('🔄 Cargando etapa de prensado...');
+          debugPrint('Cargando etapa de prensado...');
           pressingStageDto = await _pressingStageService.getPressingStage(
             _batch.id,
           );
-          debugPrint('✅ Etapa de prensado cargada');
+          debugPrint('Etapa de prensado cargada');
         }),
       );
 
       futures.add(
         _safeLoad(() async {
-          debugPrint('🔄 Cargando etapa de clarificación...');
+          debugPrint('Cargando etapa de clarificación...');
           clarificationStageDto = await _clarificationStageService
               .getClarificationStage(_batch.id);
-          debugPrint('✅ Etapa de clarificación cargada');
+          debugPrint('Etapa de clarificación cargada');
         }),
       );
 
       futures.add(
         _safeLoad(() async {
-          debugPrint('🔄 Cargando etapa de maduración...');
+          debugPrint('Cargando etapa de maduración...');
           agingStageDto = await _agingStageService.getAgingStage(_batch.id);
-          debugPrint('✅ Etapa de maduración cargada');
+          debugPrint('Etapa de maduración cargada');
         }),
       );
 
       futures.add(
         _safeLoad(() async {
-          debugPrint('🔄 Cargando etapa de filtración...');
+          debugPrint('Cargando etapa de filtración...');
           filtrationStageDto = await _filtrationStageService.getFiltrationStage(
             _batch.id,
           );
-          debugPrint('✅ Etapa de filtración cargada');
+          debugPrint('Etapa de filtración cargada');
         }),
       );
 
       futures.add(
         _safeLoad(() async {
-          debugPrint('🔄 Cargando etapa de embotellado...');
+          debugPrint('Cargando etapa de embotellado...');
           bottlingStageDto = await _bottlingStageService.getBottlingStage(
             _batch.id,
           );
-          debugPrint('✅ Etapa de embotellado cargada');
+          debugPrint('Etapa de embotellado cargada');
         }),
       );
 
@@ -182,28 +184,20 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
       
       // Inicializar servicios de manera segura
       _receptionStageService = ReceptionStageService('/wine-batch');
-      debugPrint('✅ ReceptionStageService initialized');
       
       _correctionStageService = CorrectionStageService('/wine-batch');
-      debugPrint('✅ CorrectionStageService initialized');
       
       _fermentationStageService = FermentationStageService('/wine-batch');
-      debugPrint('✅ FermentationStageService initialized');
       
       _pressingStageService = PressingStageService('/wine-batch');
-      debugPrint('✅ PressingStageService initialized');
-      
+
       _clarificationStageService = ClarificationStageService('/wine-batch');
-      debugPrint('✅ ClarificationStageService initialized');
       
       _agingStageService = AgingStageService('/wine-batch');
-      debugPrint('✅ AgingStageService initialized');
       
       _filtrationStageService = FiltrationStageService('/wine-batch');
-      debugPrint('✅ FiltrationStageService initialized');
       
       _bottlingStageService = BottlingStageService('/wine-batch');
-      debugPrint('✅ BottlingStageService initialized');
       
       debugPrint('🎯 All services initialized, starting stage loading...');
       
@@ -284,18 +278,22 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
         );
         break;
       case 'correction':
-        // TODO: Implementar navegación a página de corrección
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Página de corrección aún no implementada'),
+        result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CorrectionCreateAndEditPage(
+              batchId: _batch.id,
+            ),
           ),
         );
         break;
       case 'fermentation':
-        // TODO: Implementar navegación a página de fermentación
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Página de fermentación aún no implementada'),
+        result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => FermentationCreateAndEditPage(
+              batchId: _batch.id,
+            ),
           ),
         );
         break;
@@ -385,8 +383,10 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
           result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  CorrectionDetailsPage(correctionDto: correctionStageDto!),
+              builder: (_) => CorrectionDetailsPage(
+                correctionDto: correctionStageDto!,
+                batchId: _batch.id,
+              ),
             ),
           );
         }
@@ -398,6 +398,7 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
             MaterialPageRoute(
               builder: (_) => FermentationDetailsPage(
                 fermentationDto: fermentationStageDto!,
+                batchId: _batch.id,
               ),
             ),
           );

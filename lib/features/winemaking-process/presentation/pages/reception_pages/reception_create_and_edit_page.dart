@@ -62,9 +62,7 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
           ? widget.initialData!.quantityKg.toString() 
           : '',
     );
-    _startedAtController = TextEditingController(
-      text: widget.initialData?.startedAt ?? '',
-    );
+    _startedAtController = TextEditingController();
     _completedByController = TextEditingController(
       text: widget.initialData?.completedBy ?? '',
     );
@@ -72,12 +70,28 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
       text: widget.initialData?.observations ?? '',
     );
 
-    // Parseamos la fecha inicial si existe
+    // Parseamos la fecha inicial si existe y mostrarla en formato legible
     if (widget.initialData?.startedAt.isNotEmpty == true) {
-      try {
-        _selectedDate = DateTime.parse(widget.initialData!.startedAt);
-      } catch (e) {
-        _selectedDate = null;
+      final dateStr = widget.initialData!.startedAt;
+      if (kDebugMode) {
+        print('🗓️ Fecha recibida del backend: "$dateStr"');
+      }
+      
+      _selectedDate = _parseDate(dateStr);
+      if (_selectedDate != null) {
+        _startedAtController.text = _formatDate(_selectedDate!);
+        if (kDebugMode) {
+          print('🗓️ Fecha parseada y formateada: ${_formatDate(_selectedDate!)}');
+        }
+      } else {
+        if (kDebugMode) {
+          print('❌ No se pudo parsear la fecha');
+        }
+        _startedAtController.text = '';
+      }
+    } else {
+      if (kDebugMode) {
+        print('🗓️ No hay fecha inicial para mostrar');
       }
     }
 
@@ -95,6 +109,42 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
     _completedByController.dispose();
     _observationsController.dispose();
     super.dispose();
+  }
+
+  // Función para parsear fecha desde diferentes formatos
+  DateTime? _parseDate(String dateStr) {
+    if (dateStr.isEmpty) return null;
+    
+    try {
+      // Intentar formato dd/MM/yyyy
+      if (dateStr.contains('/')) {
+        final parts = dateStr.split('/');
+        if (parts.length == 3) {
+          final day = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final year = int.parse(parts[2]);
+          return DateTime(year, month, day);
+        }
+      }
+      
+      // Intentar formato ISO (yyyy-MM-dd o yyyy-MM-ddTHH:mm:ss)
+      if (dateStr.contains('-')) {
+        return DateTime.parse(dateStr);
+      }
+      
+      // Intentar parse directo
+      return DateTime.parse(dateStr);
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error parseando fecha "$dateStr": $e');
+      }
+      return null;
+    }
+  }
+
+  // Función para formatear fecha para mostrar al usuario (dd/MM/yyyy)
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   Future<void> _selectDate() async {
@@ -121,8 +171,8 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        // Formatear la fecha en dd/MM/yyyy como espera el backend
-        _startedAtController.text = '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
+        // Mostrar la fecha en formato legible al usuario
+        _startedAtController.text = _formatDate(picked);
       });
     }
   }
@@ -176,11 +226,10 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
       }
 
       // Validar campos de texto requeridos
-      final startedAtRaw = _startedAtController.text.trim();
       final completedBy = _completedByController.text.trim();
       final observations = _observationsController.text.trim();
 
-      if (startedAtRaw.isEmpty) {
+      if (_selectedDate == null) {
         throw Exception('La fecha de inicio es requerida');
       }
       if (completedBy.isEmpty) {
@@ -188,13 +237,7 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
       }
 
       // Convertir la fecha al formato requerido por el backend (dd/MM/yyyy)
-      String startedAt;
-      try {
-        final date = DateTime.parse(startedAtRaw);
-        startedAt = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-      } catch (e) {
-        throw Exception('Formato de fecha inválido');
-      }
+      String startedAt = _formatDate(_selectedDate!);
 
       Map<String, dynamic> data;
       

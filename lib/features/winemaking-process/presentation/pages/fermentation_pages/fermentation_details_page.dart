@@ -1,5 +1,6 @@
 
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/fermentation_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/fermentation_pages/fermentation_create_and_edit_page.dart';
 import 'package:flutter/material.dart';
 
 
@@ -25,7 +26,13 @@ import 'package:flutter/material.dart';
 
 class FermentationDetailsPage extends StatefulWidget {
   final FermentationStageDto fermentationDto;
-  const FermentationDetailsPage({super.key, required this.fermentationDto});
+  final String batchId;
+
+  const FermentationDetailsPage({
+    super.key, 
+    required this.fermentationDto,
+    required this.batchId,
+  });
 
   @override
   State<FermentationDetailsPage> createState() => _FermentationDetailsPageState();
@@ -42,7 +49,28 @@ class _FermentationDetailsPageState extends State<FermentationDetailsPage> {
   }
 
   Future<void> _navigateToEditFermentation() async {
-    // Navegación a edición
+    final result = await Navigator.push<FermentationStageDto>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FermentationCreateAndEditPage(
+          batchId: widget.batchId,
+          initialData: _fermentationDto,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _fermentationDto = result;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Etapa de fermentación actualizada correctamente'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 
 
@@ -77,14 +105,14 @@ class _FermentationDetailsPageState extends State<FermentationDetailsPage> {
                   ),
                   SizedBox(height: 12),
                   _buildDetailRow(Icons.calendar_today, 'Fecha de Inicio', _fermentationDto.startedAt),
-                  _buildDetailRow(Icons.calendar_month, 'Fecha de Finalización', _fermentationDto.completedAt ?? "N/A"),
+                  _buildDetailRow(Icons.calendar_month, 'Fecha de Finalización', _fermentationDto.completedAt.isNotEmpty ? _fermentationDto.completedAt : "N/A"),
                   _buildDetailRow(Icons.person, 'Realizado por', _fermentationDto.completedBy),
                   _buildDetailRow(
                     _fermentationDto.isCompleted ? Icons.check_circle : Icons.cancel,
                     '¿Completado?',
                     _fermentationDto.isCompleted ? "Sí" : "No",
                   ),
-                  _buildDetailRow(Icons.comment, 'Observaciones', _fermentationDto.observations ?? "N/A"),
+                  _buildDetailRow(Icons.comment, 'Observaciones', _fermentationDto.observations.isNotEmpty ? _fermentationDto.observations : "N/A"),
                   Divider(height: 32),
 
                   // Detalles de Fermentación
