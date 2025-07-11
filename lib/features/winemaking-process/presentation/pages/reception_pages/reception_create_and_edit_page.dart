@@ -71,7 +71,7 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
     );
 
     // Parseamos la fecha inicial si existe y mostrarla en formato legible
-    if (widget.initialData?.startedAt.isNotEmpty == true) {
+    if (widget.initialData != null && widget.initialData!.startedAt.isNotEmpty) {
       final dateStr = widget.initialData!.startedAt;
       if (kDebugMode) {
         print('🗓️ Fecha recibida del backend: "$dateStr"');
@@ -85,14 +85,19 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
         }
       } else {
         if (kDebugMode) {
-          print('❌ No se pudo parsear la fecha');
+          print('❌ No se pudo parsear la fecha: "$dateStr"');
         }
-        _startedAtController.text = '';
+        // Si no se puede parsear, usar fecha actual como fallback
+        _selectedDate = DateTime.now();
+        _startedAtController.text = _formatDate(_selectedDate!);
       }
     } else {
       if (kDebugMode) {
-        print('🗓️ No hay fecha inicial para mostrar');
+        print('🗓️ No hay fecha inicial, usando fecha actual');
       }
+      // Para nuevas etapas, usar fecha actual
+      _selectedDate = DateTime.now();
+      _startedAtController.text = _formatDate(_selectedDate!);
     }
 
     // Inicializar estado de completado
@@ -113,27 +118,50 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
 
   // Función para parsear fecha desde diferentes formatos
   DateTime? _parseDate(String dateStr) {
-    if (dateStr.isEmpty) return null;
+    if (dateStr.isEmpty) {
+      if (kDebugMode) {
+        print('🗓️ dateStr está vacío');
+      }
+      return null;
+    }
     
     try {
+      if (kDebugMode) {
+        print('🗓️ Intentando parsear: "$dateStr"');
+      }
+      
       // Intentar formato dd/MM/yyyy
       if (dateStr.contains('/')) {
         final parts = dateStr.split('/');
         if (parts.length == 3) {
-          final day = int.parse(parts[0]);
-          final month = int.parse(parts[1]);
-          final year = int.parse(parts[2]);
-          return DateTime(year, month, day);
+          final day = int.tryParse(parts[0]);
+          final month = int.tryParse(parts[1]);
+          final year = int.tryParse(parts[2]);
+          if (day != null && month != null && year != null) {
+            final result = DateTime(year, month, day);
+            if (kDebugMode) {
+              print('🗓️ Fecha parseada con formato dd/MM/yyyy: $result');
+            }
+            return result;
+          }
         }
       }
       
       // Intentar formato ISO (yyyy-MM-dd o yyyy-MM-ddTHH:mm:ss)
       if (dateStr.contains('-')) {
-        return DateTime.parse(dateStr);
+        final result = DateTime.parse(dateStr);
+        if (kDebugMode) {
+          print('🗓️ Fecha parseada con formato ISO: $result');
+        }
+        return result;
       }
       
       // Intentar parse directo
-      return DateTime.parse(dateStr);
+      final result = DateTime.parse(dateStr);
+      if (kDebugMode) {
+        print('🗓️ Fecha parseada con parse directo: $result');
+      }
+      return result;
     } catch (e) {
       if (kDebugMode) {
         print('❌ Error parseando fecha "$dateStr": $e');

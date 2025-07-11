@@ -106,11 +106,20 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        final isFirstRouteInTab =
-            !await _navigatorKeys[_selectedIndex].currentState!.maybePop();
-        return isFirstRouteInTab;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) return;
+        
+        final navigator = _navigatorKeys[_selectedIndex].currentState;
+        if (navigator != null) {
+          final canPop = await navigator.maybePop();
+          if (!canPop && context.mounted) {
+            // Si no se puede hacer pop en el navegador de la pestaña actual,
+            // entonces permitir que la app se cierre
+            Navigator.of(context).pop();
+          }
+        }
       },
       child: Scaffold(
         key: _scaffoldKey,

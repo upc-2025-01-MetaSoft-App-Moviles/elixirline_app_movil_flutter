@@ -74,7 +74,7 @@ class AgingStageService {
         })
         .catchError((error) {
           throw Exception(
-            "Unexpected error in updateFermentationStage: $error",
+            "Unexpected error in updateAgingStage: $error",
           );
         });
   }

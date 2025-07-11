@@ -71,26 +71,36 @@ class FiltrationStageDto {
 
   factory FiltrationStageDto.fromJson(Map<String, dynamic> json) {
     return FiltrationStageDto(
-      batchId: json['batchId'] ?? '',
-      stageType: json['stageType'] ?? '',
+      batchId: json['batchId']?.toString() ?? '',
+      stageType: json['stageType']?.toString() ?? '',
       startedAt: json['startedAt']?.toString() ?? '',
       completedAt: json['completedAt']?.toString() ?? '',
-      completedBy: json['completedBy'] ?? '',
-      observations: json['observations'] ?? '',
-      isCompleted: json['isCompleted'] ?? false,
-      filterType: json['filterType'] ?? '',
-      filtrationType: json['filtrationType'] ?? '',
-      filterMedia: json['filterMedia'] ?? '',
-      poreMicrons: (json['poreMicrons'] ?? 0).toDouble(),
-      turbidityBefore: (json['turbidityBefore'] ?? 0).toDouble(),
-      turbidityAfter: (json['turbidityAfter'] ?? 0).toDouble(),
-      temperature: (json['temperature'] ?? 0).toDouble(),
-      pressureBars: (json['pressureBars'] ?? 0).toDouble(),
-      filteredVolumeLiters: (json['filteredVolumeLiters'] ?? 0).toDouble(),
-      isSterile: json['isSterile'] ?? false,
-      filterChanged: json['filterChanged'] ?? false,
-      changeReason: json['changeReason'] ?? '',
+      completedBy: json['completedBy']?.toString() ?? '',
+      observations: json['observations']?.toString() ?? '',
+      isCompleted: json['isCompleted'] == true || json['isCompleted'] == 'true',
+      filterType: json['filterType']?.toString() ?? '',
+      filtrationType: json['filtrationType']?.toString() ?? '',
+      filterMedia: json['filterMedia']?.toString() ?? '',
+      poreMicrons: _parseDouble(json['poreMicrons']),
+      turbidityBefore: _parseDouble(json['turbidityBefore']),
+      turbidityAfter: _parseDouble(json['turbidityAfter']),
+      temperature: _parseDouble(json['temperature']),
+      pressureBars: _parseDouble(json['pressureBars']),
+      filteredVolumeLiters: _parseDouble(json['filteredVolumeLiters']),
+      isSterile: json['isSterile'] == true || json['isSterile'] == 'true',
+      filterChanged: json['filterChanged'] == true || json['filterChanged'] == 'true',
+      changeReason: json['changeReason']?.toString() ?? '',
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
   }
 
   FiltrationStage toDomain() {

@@ -16,13 +16,23 @@ import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/mo
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/pressing_stage_dto.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/reception_stage_dto.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/wine_batch_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/aging_pages/aging_create_and_edit_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/aging_pages/aging_details_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batch_create_and_edit.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/bottling_pages/bottling_create_and_edit_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/bottling_pages/bottling_details_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/clarification_pages/clarification_create_and_edit_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/clarification_pages/clarification_details_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/correction_pages/correction_create_and_edit_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/correction_pages/correction_details_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/fermentation_pages/fermentation_create_and_edit_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/fermentation_pages/fermentation_details_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/filtration_pages/filtration_create_and_edit_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/filtration_pages/filtration_details_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/reception_pages/reception_create_and_edit_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/reception_pages/reception_details_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/pressing_pages/pressing_create_and_edit_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/pressing_pages/pressing_details_page.dart';
 import 'package:flutter/material.dart';
 
 class WineBatchDetailsPage extends StatefulWidget {
@@ -57,100 +67,75 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
   BottlingStageDto? bottlingStageDto;
 
   bool _isLoading = true;
+  bool _hasError = false;
+  String _errorMessage = '';
 
   Future<void> _loadStages() async {
     if (!mounted) return;
     
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+      _errorMessage = '';
+    });
+    
     try {
-      // Se pueden ejecutar todas en paralelo si deseas más rendimiento:
-      final futures = <Future<void>>[];
+      debugPrint('🚀 Iniciando carga de etapas para el lote: ${_batch.id}');
 
-      debugPrint('Cargando etapas para el lote: ${_batch.id}');
+      // Cargar etapas secuencialmente con timeouts para evitar bloqueos
+      await _loadStageWithTimeout('recepción', () async {
+        receptionStageDto = await _receptionStageService.getReceptionStage(_batch.id);
+      });
 
-      futures.add(
-        _safeLoad(() async {
-          debugPrint('Cargando etapa de recepción...');
-          receptionStageDto = await _receptionStageService.getReceptionStage(
-            _batch.id,
-          );
-          debugPrint('Etapa de recepción cargada');
-        }),
-      );
+      await _loadStageWithTimeout('corrección', () async {
+        correctionStageDto = await _correctionStageService.getCorrectionStage(_batch.id);
+      });
 
-      futures.add(
-        _safeLoad(() async {
-          debugPrint('Cargando etapa de corrección...');
-          correctionStageDto = await _correctionStageService.getCorrectionStage(
-            _batch.id,
-          );
-          debugPrint('Etapa de corrección cargada');
-        }),
-      );
+      await _loadStageWithTimeout('fermentación', () async {
+        fermentationStageDto = await _fermentationStageService.getFermentationStage(_batch.id);
+        if (fermentationStageDto != null) {
+          debugPrint('✅ Fermentación cargada - Tanque: ${fermentationStageDto!.tankCode}');
+        }
+      });
 
-      futures.add(
-        _safeLoad(() async {
-          debugPrint('Cargando etapa de fermentación...');
-          fermentationStageDto = await _fermentationStageService
-              .getFermentationStage(_batch.id);
-          debugPrint('Etapa de fermentación cargada');
-        }),
-      );
+      await _loadStageWithTimeout('prensado', () async {
+        pressingStageDto = await _pressingStageService.getPressingStage(_batch.id);
+      });
 
-      futures.add(
-        _safeLoad(() async {
-          debugPrint('Cargando etapa de prensado...');
-          pressingStageDto = await _pressingStageService.getPressingStage(
-            _batch.id,
-          );
-          debugPrint('Etapa de prensado cargada');
-        }),
-      );
+      await _loadStageWithTimeout('clarificación', () async {
+        clarificationStageDto = await _clarificationStageService.getClarificationStage(_batch.id);
+      });
 
-      futures.add(
-        _safeLoad(() async {
-          debugPrint('Cargando etapa de clarificación...');
-          clarificationStageDto = await _clarificationStageService
-              .getClarificationStage(_batch.id);
-          debugPrint('Etapa de clarificación cargada');
-        }),
-      );
+      await _loadStageWithTimeout('maduración', () async {
+        agingStageDto = await _agingStageService.getAgingStage(_batch.id);
+      });
 
-      futures.add(
-        _safeLoad(() async {
-          debugPrint('Cargando etapa de maduración...');
-          agingStageDto = await _agingStageService.getAgingStage(_batch.id);
-          debugPrint('Etapa de maduración cargada');
-        }),
-      );
+      await _loadStageWithTimeout('filtración', () async {
+        filtrationStageDto = await _filtrationStageService.getFiltrationStage(_batch.id);
+      });
 
-      futures.add(
-        _safeLoad(() async {
-          debugPrint('Cargando etapa de filtración...');
-          filtrationStageDto = await _filtrationStageService.getFiltrationStage(
-            _batch.id,
-          );
-          debugPrint('Etapa de filtración cargada');
-        }),
-      );
+      await _loadStageWithTimeout('embotellado', () async {
+        bottlingStageDto = await _bottlingStageService.getBottlingStage(_batch.id);
+      });
 
-      futures.add(
-        _safeLoad(() async {
-          debugPrint('Cargando etapa de embotellado...');
-          bottlingStageDto = await _bottlingStageService.getBottlingStage(
-            _batch.id,
-          );
-          debugPrint('Etapa de embotellado cargada');
-        }),
-      );
-
-      await Future.wait(futures);
-      debugPrint('🎉 Todas las etapas han sido procesadas');
+      debugPrint('🎉 Todas las etapas han sido procesadas exitosamente');
     } catch (e) {
-      // Esto solo ocurre si algo falla fuera de los bloques individuales
-      debugPrint('❌ Error inesperado al cargar etapas: $e');
+      debugPrint('❌ Error al cargar etapas: $e');
       if (mounted) {
+        setState(() {
+          _hasError = true;
+          _errorMessage = e.toString();
+        });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error inesperado al cargar etapas: $e')),
+          SnackBar(
+            content: Text('Error al cargar algunas etapas: $e'),
+            backgroundColor: Colors.orange,
+            action: SnackBarAction(
+              label: 'Reintentar',
+              onPressed: _loadStages,
+              textColor: Colors.white,
+            ),
+          ),
         );
       }
     } finally {
@@ -158,18 +143,34 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
         setState(() {
           _isLoading = false;
         });
-        debugPrint('🏁 Carga de etapas completada, _isLoading = false');
+        debugPrint('🏁 Carga de etapas completada');
       }
     }
   }
 
-  /// Función auxiliar para manejar errores silenciosamente
-  Future<void> _safeLoad(Future<void> Function() loader) async {
+  Future<void> _loadStageWithTimeout(String stageName, Future<void> Function() loader) async {
+    if (!mounted) return;
+    
     try {
-      await loader();
-      debugPrint('✅ Datos cargados: $loader');
+      debugPrint('⏳ Cargando etapa de $stageName...');
+      
+      // Timeout de 10 segundos por etapa para evitar bloqueos indefinidos
+      await loader().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('⚠️ Timeout al cargar etapa de $stageName');
+          throw Exception('Timeout al cargar etapa de $stageName');
+        },
+      );
+      
+      debugPrint('✅ Etapa de $stageName cargada exitosamente');
+      
+      // Pequeña pausa para permitir que la UI responda
+      await Future.delayed(const Duration(milliseconds: 50));
+      
     } catch (e) {
-      debugPrint('Etapa no encontrada o error: $e');
+      debugPrint('⚠️ Etapa de $stageName no encontrada o error: $e');
+      // No propagar el error, solo registrarlo
     }
   }
 
@@ -202,7 +203,7 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
       debugPrint('🎯 All services initialized, starting stage loading...');
       
       // Dar un pequeño delay para asegurar que la UI se renderice primero
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
           _loadStages();
         }
@@ -292,48 +293,58 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
           context,
           MaterialPageRoute(
             builder: (_) => FermentationCreateAndEditPage(
-              batchId: _batch.id,
+              wineBatchId: _batch.id,
             ),
           ),
         );
         break;
       case 'pressing':
-        // TODO: Implementar navegación a página de prensado
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Página de prensado aún no implementada'),
+        result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PressingCreateAndEditPage(
+              batchId: _batch.id,
+            ),
           ),
         );
         break;
       case 'clarification':
-        // TODO: Implementar navegación a página de clarificación
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Página de clarificación aún no implementada'),
+        result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ClarificationCreateAndEditPage(
+              batchId: _batch.id,
+            ),
           ),
         );
         break;
       case 'aging':
-        // TODO: Implementar navegación a página de maduración
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Página de maduración aún no implementada'),
+        result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AgingCreateAndEditPage(
+              batchId: _batch.id,
+            ),
           ),
         );
         break;
       case 'filtration':
-        // TODO: Implementar navegación a página de filtración
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Página de filtración aún no implementada'),
+        result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => FiltrationCreateAndEditPage(
+              batchId: _batch.id,
+            ),
           ),
         );
         break;
       case 'bottling':
-        // TODO: Implementar navegación a página de embotellado
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Página de embotellado aún no implementada'),
+        result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BottlingCreateAndEditPage(
+              batchId: _batch.id,
+            ),
           ),
         );
         break;
@@ -404,6 +415,71 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
           );
         }
         break;
+      case 'pressing':
+        if (pressingStageDto != null) {
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PressingDetailsPage(
+                pressingDto: pressingStageDto!,
+                batchId: _batch.id,
+              ),
+            ),
+          );
+        }
+        break;
+      case 'clarification':
+        if (clarificationStageDto != null) {
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ClarificationDetailsPage(
+                clarificationDto: clarificationStageDto!,
+                batchId: _batch.id,
+              ),
+            ),
+          );
+        }
+        break;
+      case 'aging':
+        if (agingStageDto != null) {
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AgingDetailsPage(
+                agingDto: agingStageDto!,
+                batchId: _batch.id,
+              ),
+            ),
+          );
+        }
+        break;
+      case 'filtration':
+        if (filtrationStageDto != null) {
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => FiltrationDetailsPage(
+                filtrationDto: filtrationStageDto!,
+                batchId: _batch.id,
+              ),
+            ),
+          );
+        }
+        break;
+      case 'bottling':
+        if (bottlingStageDto != null) {
+          result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BottlingDetailsPage(
+                bottlingDto: bottlingStageDto!,
+                batchId: _batch.id,
+              ),
+            ),
+          );
+        }
+        break;
     }
     
     // Si se regresó un resultado (indicando que hubo cambios), recargar las etapas
@@ -451,7 +527,17 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
       {'name': 'Embotellado', 'data': bottlingStageDto, 'type': 'bottling'},
     ];
 
-    return stages.where((stage) => stage['data'] != null).toList();
+    final completed = stages.where((stage) => stage['data'] != null).toList();
+    
+    // Debug específico para fermentación
+    debugPrint('🔍 DEBUG ETAPAS:');
+    debugPrint('  - Recepción: ${receptionStageDto != null}');
+    debugPrint('  - Corrección: ${correctionStageDto != null}');  
+    debugPrint('  - Fermentación: ${fermentationStageDto != null}');
+    debugPrint('  - Prensado: ${pressingStageDto != null}');
+    debugPrint('  - Total completadas: ${completed.length}');
+    
+    return completed;
   }
 
   String? _getNextStageType() {
@@ -471,44 +557,57 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
     return next.isNotEmpty ? next['type'] as String : null;
   }
 
-  /// Formatea la fecha para mostrarla de manera más legible
+  /// Formatea la fecha para mostrarla en formato dd/MM/yyyy
   String _formatDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) {
       return 'No especificada';
     }
     
     try {
-      // Intentar parsear diferentes formatos de fecha
       DateTime date;
       
-      if (dateString.contains('-') && dateString.split('-').length == 3) {
-        // Formato dd-MM-yyyy o yyyy-MM-dd
-        final parts = dateString.split('-');
+      // Limpiar la fecha removiendo componentes de tiempo si existen
+      String cleanedDateString = dateString.trim();
+      
+      // Si contiene espacio (fecha con hora), tomar solo la parte de la fecha
+      if (cleanedDateString.contains(' ')) {
+        cleanedDateString = cleanedDateString.split(' ')[0];
+      }
+      
+      // Parsear diferentes formatos de entrada
+      if (cleanedDateString.contains('-') && cleanedDateString.split('-').length == 3) {
+        final parts = cleanedDateString.split('-');
         if (parts[0].length == 4) {
-          // yyyy-MM-dd
-          date = DateTime.parse(dateString);
+          // yyyy-MM-dd o yyyy-M-d
+          date = DateTime.parse(cleanedDateString);
         } else {
-          // dd-MM-yyyy
+          // dd-MM-yyyy o d-M-yyyy
           date = DateTime(
             int.parse(parts[2]),
             int.parse(parts[1]),
             int.parse(parts[0]),
           );
         }
+      } else if (cleanedDateString.contains('/') && cleanedDateString.split('/').length == 3) {
+        final parts = cleanedDateString.split('/');
+        // dd/MM/yyyy o d/M/yyyy
+        date = DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      } else if (cleanedDateString.contains('T')) {
+        // Formato ISO con T
+        date = DateTime.parse(cleanedDateString);
       } else {
         // Intentar parseo directo
-        date = DateTime.parse(dateString);
+        date = DateTime.parse(cleanedDateString);
       }
       
-      // Formatear como "10 de julio, 2025"
-      final months = [
-        '', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
-      ];
-      
-      return '${date.day} de ${months[date.month]}, ${date.year}';
+      // Formatear como dd/MM/yyyy
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     } catch (e) {
-      // Si no se puede parsear, devolver el string original
+      debugPrint('Error al formatear fecha: $dateString - $e');
       return dateString;
     }
   }
@@ -520,32 +619,32 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
         if (receptionStageDto != null) {
           return [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.blue.shade100,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'pH: ${receptionStageDto!.pH.toStringAsFixed(1)}',
+                'pH ${receptionStageDto!.pH.toStringAsFixed(1)}',
                 style: TextStyle(
                   color: Colors.blue.shade700,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
             const SizedBox(width: 4),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.purple.shade100,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                '${receptionStageDto!.quantityKg.toStringAsFixed(0)} kg',
+                '${receptionStageDto!.quantityKg.toStringAsFixed(0)}kg',
                 style: TextStyle(
                   color: Colors.purple.shade700,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -557,33 +656,39 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
         if (fermentationStageDto != null) {
           return [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.red.shade100,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'Temp: ${fermentationStageDto!.temperatureMax.toStringAsFixed(1)}°C',
+                '${fermentationStageDto!.temperatureMax.toStringAsFixed(1)}°C',
                 style: TextStyle(
                   color: Colors.red.shade700,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
             const SizedBox(width: 4),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.green.shade100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'Levadura: ${fermentationStageDto!.yeastUsed}',
-                style: TextStyle(
-                  color: Colors.green.shade700,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+              constraints: const BoxConstraints(maxWidth: 120),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  fermentationStageDto!.yeastUsed.length > 10 
+                      ? '${fermentationStageDto!.yeastUsed.substring(0, 10)}...'
+                      : fermentationStageDto!.yeastUsed,
+                  style: TextStyle(
+                    color: Colors.green.shade700,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -594,20 +699,224 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
         if (correctionStageDto != null) {
           return [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.orange.shade100,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'Corrección aplicada',
+                'Corregido',
                 style: TextStyle(
                   color: Colors.orange.shade700,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
+          ];
+        }
+        break;
+      case 'pressing':
+        if (pressingStageDto != null) {
+          return [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.indigo.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${pressingStageDto!.pressPressureBars.toStringAsFixed(1)} bar',
+                style: TextStyle(
+                  color: Colors.indigo.shade700,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            if (pressingStageDto!.yieldLiters > 0) ...[
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.teal.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${pressingStageDto!.yieldLiters.toStringAsFixed(0)}L',
+                  style: TextStyle(
+                    color: Colors.teal.shade700,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ];
+        }
+        break;
+      case 'clarification':
+        if (clarificationStageDto != null) {
+          return [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.cyan.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                clarificationStageDto!.method.length > 8 
+                    ? '${clarificationStageDto!.method.substring(0, 8)}...'
+                    : clarificationStageDto!.method,
+                style: TextStyle(
+                  color: Colors.cyan.shade700,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (clarificationStageDto!.initialTurbidityNtu > 0) ...[
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${clarificationStageDto!.initialTurbidityNtu.toStringAsFixed(1)} NTU',
+                  style: TextStyle(
+                    color: Colors.amber.shade700,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ];
+        }
+        break;
+      case 'aging':
+        if (agingStageDto != null) {
+          return [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.brown.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                agingStageDto!.containerType.length > 8 
+                    ? '${agingStageDto!.containerType.substring(0, 8)}...'
+                    : agingStageDto!.containerType,
+                style: TextStyle(
+                  color: Colors.brown.shade700,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (agingStageDto!.volumeLiters > 0) ...[
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.deepOrange.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${agingStageDto!.volumeLiters.toStringAsFixed(0)}L',
+                  style: TextStyle(
+                    color: Colors.deepOrange.shade700,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ];
+        }
+        break;
+      case 'filtration':
+        if (filtrationStageDto != null) {
+          return [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.lightBlue.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                filtrationStageDto!.filterType.length > 8 
+                    ? '${filtrationStageDto!.filterType.substring(0, 8)}...'
+                    : filtrationStageDto!.filterType,
+                style: TextStyle(
+                  color: Colors.lightBlue.shade700,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (filtrationStageDto!.poreMicrons > 0) ...[
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.pink.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${filtrationStageDto!.poreMicrons.toStringAsFixed(1)}μm',
+                  style: TextStyle(
+                    color: Colors.pink.shade700,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ];
+        }
+        break;
+      case 'bottling':
+        if (bottlingStageDto != null) {
+          return [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.lime.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${bottlingStageDto!.bottlesFilled.toStringAsFixed(0)} bot.',
+                style: TextStyle(
+                  color: Colors.lime.shade700,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            if (bottlingStageDto!.bottleVolumeMl > 0) ...[
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${bottlingStageDto!.bottleVolumeMl.toStringAsFixed(0)}ml',
+                  style: TextStyle(
+                    color: Colors.deepPurple.shade700,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ];
         }
         break;
@@ -625,7 +934,7 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
           backgroundColor: ColorPalette.vinoTinto,
           foregroundColor: Colors.white,
           automaticallyImplyLeading: false,
-          title: const Text(
+          title: Text(
             'Detalles del Lote de Vino',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
@@ -635,8 +944,64 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
           ),
         ),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Cargando etapas de vinificación...',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : _hasError
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error al cargar las etapas',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _errorMessage,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: _loadStages,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Reintentar'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ColorPalette.vinoTinto,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1029,7 +1394,9 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
               ),
             ),
             const SizedBox(height: 8),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -1050,7 +1417,6 @@ class _WineBatchDetailsPageState extends State<WineBatchDetailsPage> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
                 ..._buildStageSpecificInfo(stageType, stageData),
               ],
             ),

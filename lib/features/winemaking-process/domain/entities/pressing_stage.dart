@@ -26,7 +26,7 @@ class PressingStage {
   final bool isCompleted;
   final String pressType;
   final double pressPressureBars;
-  final int durationMinutes;
+  final double durationMinutes;
   final double pomaceKg;
   final double yieldLiters;
   final String mustUsage;

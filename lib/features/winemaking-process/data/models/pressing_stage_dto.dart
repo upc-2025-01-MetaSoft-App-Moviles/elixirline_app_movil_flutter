@@ -28,7 +28,7 @@ class PressingStageDto {
   final bool isCompleted;
   final String pressType;
   final double pressPressureBars;
-  final int durationMinutes;
+  final double durationMinutes;
   final double pomaceKg;
   final double yieldLiters;
   final String mustUsage;
@@ -53,20 +53,30 @@ class PressingStageDto {
 
   factory PressingStageDto.fromJson(Map<String, dynamic> json) {
     return PressingStageDto(
-      batchId: json['batchId'] ?? '',
-      stageType: json['stageType'] ?? '',
+      batchId: json['batchId']?.toString() ?? '',
+      stageType: json['stageType']?.toString() ?? '',
       startedAt: json['startedAt']?.toString() ?? '',
       completedAt: json['completedAt']?.toString() ?? '',
-      completedBy: json['completedBy'] ?? '',
-      isCompleted: json['isCompleted'] ?? false,
-      pressType: json['pressType'] ?? '',
-      pressPressureBars: (json['pressPressureBars'] ?? 0).toDouble(),
-      durationMinutes: (json['durationMinutes'] ?? 0).toInt(),
-      pomaceKg: (json['pomaceKg'] ?? 0).toDouble(),
-      yieldLiters: (json['yieldLiters'] ?? 0).toDouble(),
-      mustUsage: json['mustUsage'] ?? '',
-      observations: json['observations'] ?? '',
+      completedBy: json['completedBy']?.toString() ?? '',
+      isCompleted: json['isCompleted'] == true || json['isCompleted'] == 'true',
+      pressType: json['pressType']?.toString() ?? '',
+      pressPressureBars: _parseDouble(json['pressPressureBars']),
+      durationMinutes: _parseDouble(json['durationMinutes']),
+      pomaceKg: _parseDouble(json['pomaceKg']),
+      yieldLiters: _parseDouble(json['yieldLiters']),
+      mustUsage: json['mustUsage']?.toString() ?? '',
+      observations: json['observations']?.toString() ?? '',
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
   }
 
   PressingStage toDomain() {

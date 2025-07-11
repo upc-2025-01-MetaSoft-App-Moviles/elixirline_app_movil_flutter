@@ -62,23 +62,33 @@ class FermentationStageDto {
 
   factory FermentationStageDto.fromJson(Map<String, dynamic> json) {
     return FermentationStageDto(
-      batchId: json['batchId'] ?? '',
-      stageType: json['stageType'] ?? '',
+      batchId: json['batchId']?.toString() ?? '',
+      stageType: json['stageType']?.toString() ?? '',
       startedAt: json['startedAt']?.toString() ?? '',
       completedAt: json['completedAt']?.toString() ?? '',
-      completedBy: json['completedBy'] ?? '',
-      isCompleted: json['isCompleted'] ?? false,
-      yeastUsed: json['yeastUsed'] ?? '',
-      initialSugarLevel: (json['initialSugarLevel'] ?? 0).toDouble(),
-      finalSugarLevel: (json['finalSugarLevel'] ?? 0).toDouble(),
-      initialPh: (json['initialPh'] ?? 0).toDouble(),
-      finalPh: (json['finalPh'] ?? 0).toDouble(),
-      temperatureMax: (json['temperatureMax'] ?? 0).toDouble(),
-      temperatureMin: (json['temperatureMin'] ?? 0).toDouble(),
-      fermentationType: json['fermentationType'] ?? '',
-      tankCode: json['tankCode'] ?? '',
-      observations: json['observations'] ?? '',
+      completedBy: json['completedBy']?.toString() ?? '',
+      isCompleted: json['isCompleted'] == true || json['isCompleted'] == 'true',
+      yeastUsed: json['yeastUsed']?.toString() ?? '',
+      initialSugarLevel: _parseDouble(json['initialSugarLevel']),
+      finalSugarLevel: _parseDouble(json['finalSugarLevel']),
+      initialPh: _parseDouble(json['initialPh']),
+      finalPh: _parseDouble(json['finalPh']),
+      temperatureMax: _parseDouble(json['temperatureMax']),
+      temperatureMin: _parseDouble(json['temperatureMin']),
+      fermentationType: json['fermentationType']?.toString() ?? '',
+      tankCode: json['tankCode']?.toString() ?? '',
+      observations: json['observations']?.toString() ?? '',
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
   }
 
   FermentationStage toDomain() {

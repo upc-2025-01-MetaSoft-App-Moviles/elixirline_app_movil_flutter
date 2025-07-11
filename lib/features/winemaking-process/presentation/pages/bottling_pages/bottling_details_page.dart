@@ -1,50 +1,50 @@
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/filtration_stage_dto.dart';
-import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/filtration_pages/filtration_create_and_edit_page.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/bottling_stage_dto.dart';
+import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/bottling_pages/bottling_create_and_edit_page.dart';
 import 'package:flutter/material.dart';
 
-class FiltrationDetailsPage extends StatefulWidget {
-  final FiltrationStageDto filtrationDto;
+class BottlingDetailsPage extends StatefulWidget {
+  final BottlingStageDto bottlingDto;
   final String batchId;
 
-  const FiltrationDetailsPage({
+  const BottlingDetailsPage({
     super.key, 
-    required this.filtrationDto,
+    required this.bottlingDto,
     required this.batchId,
   });
 
   @override
-  State<FiltrationDetailsPage> createState() => _FiltrationDetailsPageState();
+  State<BottlingDetailsPage> createState() => _BottlingDetailsPageState();
 }
 
-class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
-  late FiltrationStageDto _filtrationDto;
+class _BottlingDetailsPageState extends State<BottlingDetailsPage> {
+  late BottlingStageDto _bottlingDto;
 
   @override
   void initState() {
     super.initState();
-    _filtrationDto = widget.filtrationDto;
+    _bottlingDto = widget.bottlingDto;
   }
 
-  Future<void> _navigateToEditFiltration() async {
-    final result = await Navigator.push<FiltrationStageDto>(
+  Future<void> _navigateToEditBottling() async {
+    final result = await Navigator.push<BottlingStageDto>(
       context,
       MaterialPageRoute(
-        builder: (_) => FiltrationCreateAndEditPage(
+        builder: (_) => BottlingCreateAndEditPage(
           batchId: widget.batchId,
-          initialData: _filtrationDto,
+          initialData: _bottlingDto,
         ),
       ),
     );
 
     if (result != null) {
       setState(() {
-        _filtrationDto = result;
+        _bottlingDto = result;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Etapa de filtración actualizada correctamente'),
+          content: Text('Etapa de embotellado actualizada correctamente'),
           backgroundColor: Colors.green,
         ),
       );
@@ -91,7 +91,7 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
           foregroundColor: Colors.white,
           automaticallyImplyLeading: false,
           title: const Text(
-            'Detalles de Filtración',
+            'Detalles de Embotellado',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
@@ -131,7 +131,7 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
-                                    Icons.filter_alt,
+                                    Icons.wine_bar,
                                     color: ColorPalette.vinoTinto,
                                     size: 28,
                                   ),
@@ -142,7 +142,7 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       const Text(
-                                        'Etapa de Filtración',
+                                        'Etapa de Embotellado',
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
@@ -156,17 +156,17 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                                           vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: _filtrationDto.isCompleted
+                                          color: _bottlingDto.isCompleted
                                               ? Colors.green.withOpacity(0.1)
                                               : Colors.orange.withOpacity(0.1),
                                           borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Text(
-                                          _filtrationDto.isCompleted
+                                          _bottlingDto.isCompleted
                                               ? 'Completada'
                                               : 'En Proceso',
                                           style: TextStyle(
-                                            color: _filtrationDto.isCompleted
+                                            color: _bottlingDto.isCompleted
                                                 ? Colors.green.shade700
                                                 : Colors.orange.shade700,
                                             fontSize: 12,
@@ -181,13 +181,13 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                             ),
                           ),
                           IconButton(
-                            onPressed: _navigateToEditFiltration,
+                            onPressed: _navigateToEditBottling,
                             icon: Icon(
                               Icons.edit,
                               color: ColorPalette.vinoTinto,
                               size: 24,
                             ),
-                            tooltip: 'Editar filtración',
+                            tooltip: 'Editar embotellado',
                             style: IconButton.styleFrom(
                               backgroundColor: ColorPalette.vinoTinto.withOpacity(0.1),
                               shape: RoundedRectangleBorder(
@@ -200,23 +200,31 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                       const SizedBox(height: 24),
                       _buildInfoRow(
                         'Fecha de Inicio',
-                        _formatDate(_filtrationDto.startedAt),
+                        _formatDate(_bottlingDto.startedAt),
                         Icons.calendar_today,
                       ),
-                      if (_filtrationDto.completedAt.isNotEmpty) ...[
+                      if (_bottlingDto.completedAt.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         _buildInfoRow(
                           'Fecha de Finalización',
-                          _formatDate(_filtrationDto.completedAt),
+                          _formatDate(_bottlingDto.completedAt),
                           Icons.calendar_month,
                         ),
                       ],
-                      if (_filtrationDto.completedBy.isNotEmpty) ...[
+                      if (_bottlingDto.completedBy.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         _buildInfoRow(
                           'Responsable',
-                          _filtrationDto.completedBy,
+                          _bottlingDto.completedBy,
                           Icons.person,
+                        ),
+                      ],
+                      if (_bottlingDto.code.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        _buildInfoRow(
+                          'Código de Lote',
+                          _bottlingDto.code,
+                          Icons.qr_code,
                         ),
                       ],
                     ],
@@ -226,7 +234,7 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
 
               const SizedBox(height: 16),
 
-              // Card de Configuración del Filtro
+              // Card de Línea de Embotellado
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -241,13 +249,13 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                       Row(
                         children: [
                           Icon(
-                            Icons.tune,
+                            Icons.precision_manufacturing,
                             color: Colors.indigo.shade600,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
                           const Text(
-                            'Configuración del Filtro',
+                            'Línea de Embotellado',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -257,96 +265,20 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      if (_filtrationDto.filterType.isNotEmpty)
+                      if (_bottlingDto.bottlingLine.isNotEmpty)
                         _buildInfoRow(
-                          'Tipo de Filtro',
-                          _filtrationDto.filterType,
-                          Icons.category,
-                        ),
-                      if (_filtrationDto.filterType.isNotEmpty && _filtrationDto.filtrationType.isNotEmpty)
-                        const SizedBox(height: 12),
-                      if (_filtrationDto.filtrationType.isNotEmpty)
-                        _buildInfoRow(
-                          'Método de Filtración',
-                          _filtrationDto.filtrationType,
+                          'Línea Utilizada',
+                          _bottlingDto.bottlingLine,
                           Icons.settings,
                         ),
-                      if (_filtrationDto.filtrationType.isNotEmpty && _filtrationDto.filterMedia.isNotEmpty)
+                      if (_bottlingDto.temperature > 0) ...[
                         const SizedBox(height: 12),
-                      if (_filtrationDto.filterMedia.isNotEmpty)
-                        _buildInfoRow(
-                          'Medio Filtrante',
-                          _filtrationDto.filterMedia,
-                          Icons.layers,
-                        ),
-                      if (_filtrationDto.filterMedia.isNotEmpty && _filtrationDto.poreMicrons > 0)
-                        const SizedBox(height: 12),
-                      if (_filtrationDto.poreMicrons > 0)
-                        _buildInfoRow(
-                          'Tamaño de Poro',
-                          '${_filtrationDto.poreMicrons.toStringAsFixed(2)} μm',
-                          Icons.grain,
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Card de Condiciones de Proceso
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-                color: Colors.teal.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.speed,
-                            color: Colors.teal.shade600,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Condiciones de Proceso',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      if (_filtrationDto.temperature > 0)
                         _buildInfoRow(
                           'Temperatura',
-                          '${_filtrationDto.temperature.toStringAsFixed(1)} °C',
+                          '${_bottlingDto.temperature.toStringAsFixed(1)} °C',
                           Icons.thermostat,
                         ),
-                      if (_filtrationDto.temperature > 0 && _filtrationDto.pressureBars > 0)
-                        const SizedBox(height: 12),
-                      if (_filtrationDto.pressureBars > 0)
-                        _buildInfoRow(
-                          'Presión',
-                          '${_filtrationDto.pressureBars.toStringAsFixed(2)} bar',
-                          Icons.compress,
-                        ),
-                      if (_filtrationDto.pressureBars > 0 && _filtrationDto.filteredVolumeLiters > 0)
-                        const SizedBox(height: 12),
-                      if (_filtrationDto.filteredVolumeLiters > 0)
-                        _buildInfoRow(
-                          'Volumen Filtrado',
-                          '${_filtrationDto.filteredVolumeLiters.toStringAsFixed(2)} L',
-                          Icons.local_drink,
-                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -354,7 +286,7 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
 
               const SizedBox(height: 16),
 
-              // Card de Resultados de Calidad
+              // Card de Producción
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -369,13 +301,13 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                       Row(
                         children: [
                           Icon(
-                            Icons.analytics,
+                            Icons.inventory_2,
                             color: Colors.green.shade600,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
                           const Text(
-                            'Resultados de Calidad',
+                            'Datos de Producción',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -385,34 +317,36 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      if (_filtrationDto.turbidityBefore > 0)
+                      if (_bottlingDto.bottlesFilled > 0)
                         _buildInfoRow(
-                          'Turbidez Inicial',
-                          '${_filtrationDto.turbidityBefore.toStringAsFixed(2)} NTU',
-                          Icons.trending_up,
+                          'Botellas Llenadas',
+                          '${_bottlingDto.bottlesFilled.toString()} unidades',
+                          Icons.local_drink,
                         ),
-                      if (_filtrationDto.turbidityBefore > 0 && _filtrationDto.turbidityAfter > 0)
+                      if (_bottlingDto.bottlesFilled > 0 && _bottlingDto.bottleVolumeMl > 0)
                         const SizedBox(height: 12),
-                      if (_filtrationDto.turbidityAfter > 0)
+                      if (_bottlingDto.bottleVolumeMl > 0)
                         _buildInfoRow(
-                          'Turbidez Final',
-                          '${_filtrationDto.turbidityAfter.toStringAsFixed(2)} NTU',
-                          Icons.trending_down,
+                          'Volumen por Botella',
+                          '${_bottlingDto.bottleVolumeMl.toString()} ml',
+                          Icons.science,
                         ),
-                      if (_filtrationDto.turbidityBefore > 0 && _filtrationDto.turbidityAfter > 0) ...[
+                      if (_bottlingDto.bottleVolumeMl > 0 && _bottlingDto.totalVolumeLiters > 0)
+                        const SizedBox(height: 12),
+                      if (_bottlingDto.totalVolumeLiters > 0)
+                        _buildInfoRow(
+                          'Volumen Total',
+                          '${_bottlingDto.totalVolumeLiters.toStringAsFixed(2)} L',
+                          Icons.water_drop,
+                        ),
+                      if (_bottlingDto.sealType.isNotEmpty) ...[
                         const SizedBox(height: 12),
                         _buildInfoRow(
-                          'Reducción de Turbidez',
-                          '${((_filtrationDto.turbidityBefore - _filtrationDto.turbidityAfter) / _filtrationDto.turbidityBefore * 100).toStringAsFixed(1)}%',
-                          Icons.trending_down_outlined,
+                          'Tipo de Sellado',
+                          _bottlingDto.sealType,
+                          Icons.lock,
                         ),
                       ],
-                      const SizedBox(height: 12),
-                      _buildInfoRow(
-                        'Filtración Estéril',
-                        _filtrationDto.isSterile ? 'Sí' : 'No',
-                        _filtrationDto.isSterile ? Icons.shield : Icons.shield_outlined,
-                      ),
                     ],
                   ),
                 ),
@@ -420,7 +354,7 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
 
               const SizedBox(height: 16),
 
-              // Card de Mantenimiento
+              // Card de Control de Calidad
               Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -435,13 +369,13 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                       Row(
                         children: [
                           Icon(
-                            Icons.build,
+                            Icons.verified_user,
                             color: Colors.orange.shade600,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
                           const Text(
-                            'Mantenimiento del Filtro',
+                            'Control de Calidad',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -452,24 +386,28 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                       ),
                       const SizedBox(height: 16),
                       _buildInfoRow(
-                        'Filtro Cambiado',
-                        _filtrationDto.filterChanged ? 'Sí' : 'No',
-                        _filtrationDto.filterChanged ? Icons.check_circle : Icons.cancel,
+                        'Filtrado Previo',
+                        _bottlingDto.wasFiltered ? 'Sí' : 'No',
+                        _bottlingDto.wasFiltered ? Icons.check_circle : Icons.cancel,
                       ),
-                      if (_filtrationDto.filterChanged && _filtrationDto.changeReason.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        _buildTextSection(
-                          'Razón del Cambio',
-                          _filtrationDto.changeReason,
-                          Icons.info,
-                        ),
-                      ],
+                      const SizedBox(height: 12),
+                      _buildInfoRow(
+                        'Etiquetas Aplicadas',
+                        _bottlingDto.wereLabelsApplied ? 'Sí' : 'No',
+                        _bottlingDto.wereLabelsApplied ? Icons.check_circle : Icons.cancel,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(
+                        'Cápsulas Aplicadas',
+                        _bottlingDto.wereCapsulesApplied ? 'Sí' : 'No',
+                        _bottlingDto.wereCapsulesApplied ? Icons.check_circle : Icons.cancel,
+                      ),
                     ],
                   ),
                 ),
               ),
 
-              if (_filtrationDto.observations.isNotEmpty) ...[
+              if (_bottlingDto.observations.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Card(
                   shape: RoundedRectangleBorder(
@@ -503,7 +441,7 @@ class _FiltrationDetailsPageState extends State<FiltrationDetailsPage> {
                         const SizedBox(height: 16),
                         _buildTextSection(
                           'Observaciones',
-                          _filtrationDto.observations,
+                          _bottlingDto.observations,
                           Icons.note,
                         ),
                       ],

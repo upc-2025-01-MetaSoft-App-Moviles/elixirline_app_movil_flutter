@@ -68,25 +68,45 @@ class AgingStageDto {
 
   factory AgingStageDto.fromJson(Map<String, dynamic> json) {
     return AgingStageDto(
-      batchId: json['batchId'] ?? '',
-      stageType: json['stageType'] ?? '',
+      batchId: json['batchId']?.toString() ?? '',
+      stageType: json['stageType']?.toString() ?? '',
       startedAt: json['startedAt']?.toString() ?? '',
       completedAt: json['completedAt']?.toString() ?? '',
-      completedBy: json['completedBy'] ?? '',
-      observations: json['observations'] ?? '',
-      isCompleted: json['isCompleted'] ?? false,
-      containerType: json['containerType'] ?? '',
-      material: json['material'] ?? '',
-      containerCode: json['containerCode'] ?? '',
-      avgTemperature: (json['avgTemperature'] ?? 0).toDouble(),
-      volumeLiters: (json['volumeLiters'] ?? 0).toDouble(),
-      durationMonths: (json['durationMonths'] ?? 0).toInt(),
-      frequencyDays: (json['frequencyDays'] ?? 0).toInt(),
-      refilled: (json['refilled'] ?? 0).toInt(),
-      batonnage: (json['batonnage'] ?? 0).toInt(),
-      rackings: (json['rackings'] ?? 0).toInt(),
-      purpose: json['purpose'] ?? '',
+      completedBy: json['completedBy']?.toString() ?? '',
+      observations: json['observations']?.toString() ?? '',
+      isCompleted: json['isCompleted'] == true || json['isCompleted'] == 'true',
+      containerType: json['containerType']?.toString() ?? '',
+      material: json['material']?.toString() ?? '',
+      containerCode: json['containerCode']?.toString() ?? '',
+      avgTemperature: _parseDouble(json['avgTemperature']),
+      volumeLiters: _parseDouble(json['volumeLiters']),
+      durationMonths: _parseInt(json['durationMonths']),
+      frequencyDays: _parseInt(json['frequencyDays']),
+      refilled: _parseInt(json['refilled']),
+      batonnage: _parseInt(json['batonnage']),
+      rackings: _parseInt(json['rackings']),
+      purpose: json['purpose']?.toString() ?? '',
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) {
+      return int.tryParse(value) ?? 0;
+    }
+    return 0;
   }
 
   AgingStage toDomain() {

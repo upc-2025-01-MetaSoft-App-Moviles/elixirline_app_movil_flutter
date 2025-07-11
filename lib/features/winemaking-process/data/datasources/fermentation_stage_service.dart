@@ -67,8 +67,15 @@ class FermentationStageService {
             final map = jsonDecode(response.body);
             return FermentationStageDto.fromJson(map);
           } else {
+            // Mostrar más detalles del error
+            String responseBody = '';
+            try {
+              responseBody = response.body;
+            } catch (e) {
+              responseBody = 'No se pudo leer el cuerpo de la respuesta';
+            }
             throw HttpException(
-              "Error updating fermentation stage: ${response.statusCode}",
+              "Error updating fermentation stage: ${response.statusCode}. Response: $responseBody",
             );
           }
         })

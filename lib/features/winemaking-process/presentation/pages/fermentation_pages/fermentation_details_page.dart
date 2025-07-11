@@ -1,4 +1,3 @@
-
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/fermentation_stage_dto.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/fermentation_pages/fermentation_create_and_edit_page.dart';
@@ -32,7 +31,7 @@ class _FermentationDetailsPageState extends State<FermentationDetailsPage> {
       context,
       MaterialPageRoute(
         builder: (context) => FermentationCreateAndEditPage(
-          batchId: widget.batchId,
+          wineBatchId: widget.batchId,
           initialData: _fermentationDto,
         ),
       ),
@@ -60,29 +59,129 @@ class _FermentationDetailsPageState extends State<FermentationDetailsPage> {
     try {
       DateTime date;
       
-      // Try parsing as ISO format first
       if (dateString.contains('T')) {
         date = DateTime.parse(dateString);
       } else if (dateString.contains('/')) {
-        // Try parsing as dd/MM/yyyy format
         final parts = dateString.split('/');
         if (parts.length == 3) {
           date = DateTime(
-            int.parse(parts[2]), // year
-            int.parse(parts[1]), // month
-            int.parse(parts[0]), // day
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
           );
         } else {
-          return dateString; // Return as-is if can't parse
+          return dateString;
         }
       } else {
-        return dateString; // Return as-is if format is unknown
+        return dateString;
       }
 
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     } catch (e) {
-      return dateString; // Return original if parsing fails
+      return dateString;
     }
+  }
+
+  Widget _buildInfoItem(IconData icon, String label, String? value, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            label.contains('Fecha') ? _formatDate(value) : (value ?? 'No especificado'),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade800,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, dynamic value, {String? unit}) {
+    String displayValue = 'No especificado';
+    if (value != null) {
+      if (value is double && value > 0) {
+        displayValue = '${value.toStringAsFixed(1)}${unit ?? ''}';
+      } else if (value is int && value > 0) {
+        displayValue = '$value${unit ?? ''}';
+      } else if (value is String && value.isNotEmpty) {
+        displayValue = value;
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+                fontSize: 13,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 2,
+            child: Text(
+              displayValue,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -99,7 +198,7 @@ class _FermentationDetailsPageState extends State<FermentationDetailsPage> {
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(context).pop(_fermentationDto),
             tooltip: 'Volver',
           ),
         ),
@@ -122,454 +221,261 @@ class _FermentationDetailsPageState extends State<FermentationDetailsPage> {
                     children: [
                       // Header con ícono, título y botón de editar
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: ColorPalette.vinoTinto.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.bubble_chart,
+                              color: ColorPalette.vinoTinto,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
                           Expanded(
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: ColorPalette.vinoTinto.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    Icons.science,
+                                Text(
+                                  'Información de Fermentación',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                     color: ColorPalette.vinoTinto,
-                                    size: 28,
                                   ),
                                 ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        'Etapa de Fermentación',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: _fermentationDto.isCompleted
-                                              ? Colors.green.withOpacity(0.1)
-                                              : Colors.orange.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: Text(
-                                          _fermentationDto.isCompleted
-                                              ? 'Completada'
-                                              : 'En Proceso',
-                                          style: TextStyle(
-                                            color: _fermentationDto.isCompleted
-                                                ? Colors.green.shade700
-                                                : Colors.orange.shade700,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _fermentationDto.isCompleted 
+                                        ? Colors.green.withOpacity(0.1)
+                                        : Colors.orange.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: _fermentationDto.isCompleted 
+                                          ? Colors.green.withOpacity(0.3)
+                                          : Colors.orange.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _fermentationDto.isCompleted ? 'Completado' : 'En progreso',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: _fermentationDto.isCompleted 
+                                          ? Colors.green.shade700 
+                                          : Colors.orange.shade700,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          IconButton(
-                            onPressed: _navigateToEditFermentation,
-                            icon: Icon(
-                              Icons.edit,
+                          const SizedBox(width: 8),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: ColorPalette.vinoTinto.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.edit_outlined),
+                              color: ColorPalette.vinoTinto,
+                              onPressed: _navigateToEditFermentation,
+                              tooltip: 'Editar fermentación',
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      // Grid de información general
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildInfoItem(
+                                  Icons.calendar_today_outlined,
+                                  'Fecha de Inicio',
+                                  _fermentationDto.startedAt,
+                                  Colors.blue,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildInfoItem(
+                                  Icons.calendar_month_outlined,
+                                  'Fecha de Finalización',
+                                  _fermentationDto.completedAt,
+                                  Colors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          
+                          _buildInfoItem(
+                            Icons.person_outline,
+                            'Realizado por',
+                            _fermentationDto.completedBy,
+                            Colors.purple,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Card de parámetros técnicos
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 6,
+                shadowColor: ColorPalette.vinoTinto.withOpacity(0.2),
+                color: Colors.grey.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header de parámetros técnicos
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: ColorPalette.vinoTinto.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.science_outlined,
                               color: ColorPalette.vinoTinto,
                               size: 24,
                             ),
-                            tooltip: 'Editar fermentación',
-                            style: IconButton.styleFrom(
-                              backgroundColor: ColorPalette.vinoTinto.withOpacity(0.1),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Parámetros de Fermentación',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: ColorPalette.vinoTinto,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
-                      // Información básica
-                      _buildInfoRow(
-                        'Fecha de Inicio',
-                        _formatDate(_fermentationDto.startedAt),
-                        Icons.calendar_today,
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Información de fermentación organizada en dos columnas
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildDetailRow('Tipo de Fermentación', _fermentationDto.fermentationType),
+                              ),
+                              Expanded(
+                                child: _buildDetailRow('Código del Tanque', _fermentationDto.tankCode),
+                              ),
+                            ],
+                          ),
+                          _buildDetailRow('Levadura Utilizada', _fermentationDto.yeastUsed),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildDetailRow('Temp. Mínima', _fermentationDto.temperatureMin, unit: '°C'),
+                              ),
+                              Expanded(
+                                child: _buildDetailRow('Temp. Máxima', _fermentationDto.temperatureMax, unit: '°C'),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildDetailRow('pH Inicial', _fermentationDto.initialPh),
+                              ),
+                              Expanded(
+                                child: _buildDetailRow('pH Final', _fermentationDto.finalPh),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildDetailRow('Azúcar Inicial', _fermentationDto.initialSugarLevel, unit: ' Brix'),
+                              ),
+                              Expanded(
+                                child: _buildDetailRow('Azúcar Final', _fermentationDto.finalSugarLevel, unit: ' Brix'),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      if (_fermentationDto.completedAt.isNotEmpty) ...[
+                      
+                      if (_fermentationDto.observations.isNotEmpty) ...[
                         const SizedBox(height: 16),
-                        _buildInfoRow(
-                          'Fecha de Finalización',
-                          _formatDate(_fermentationDto.completedAt),
-                          Icons.calendar_month,
-                        ),
-                      ],
-                      if (_fermentationDto.completedBy.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        _buildInfoRow(
-                          'Responsable',
-                          _fermentationDto.completedBy,
-                          Icons.person,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Card de Tanque y Tipo
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-                color: Colors.blue.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.local_drink,
-                            color: Colors.blue.shade600,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Tanque y Tipo de Fermentación',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      if (_fermentationDto.tankCode.isNotEmpty)
-                        _buildInfoRow(
-                          'Código de Tanque',
-                          _fermentationDto.tankCode,
-                          Icons.storage,
-                        ),
-                      if (_fermentationDto.tankCode.isNotEmpty && _fermentationDto.fermentationType.isNotEmpty)
+                        const Divider(),
                         const SizedBox(height: 12),
-                      if (_fermentationDto.fermentationType.isNotEmpty)
-                        _buildInfoRow(
-                          'Tipo de Fermentación',
-                          _fermentationDto.fermentationType,
-                          Icons.category,
-                        ),
-                      if (_fermentationDto.yeastUsed.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        _buildInfoRow(
-                          'Levadura Utilizada',
-                          _fermentationDto.yeastUsed,
-                          Icons.grain,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Card de Niveles de Azúcar
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-                color: Colors.green.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.opacity,
-                            color: Colors.green.shade600,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Niveles de Azúcar',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoRow(
-                        'Nivel Inicial',
-                        '${_fermentationDto.initialSugarLevel.toStringAsFixed(2)} °Brix',
-                        Icons.trending_up,
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoRow(
-                        'Nivel Final',
-                        '${_fermentationDto.finalSugarLevel.toStringAsFixed(2)} °Brix',
-                        Icons.trending_down,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Card de pH
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-                color: Colors.purple.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.science_outlined,
-                            color: Colors.purple.shade600,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Niveles de pH',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoRow(
-                        'pH Inicial',
-                        _fermentationDto.initialPh.toStringAsFixed(2),
-                        Icons.analytics,
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoRow(
-                        'pH Final',
-                        _fermentationDto.finalPh.toStringAsFixed(2),
-                        Icons.analytics_outlined,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Card de Temperatura
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 4,
-                color: Colors.orange.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.thermostat,
-                            color: Colors.orange.shade600,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Control de Temperatura',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoRow(
-                        'Temperatura Máxima',
-                        '${_fermentationDto.temperatureMax.toStringAsFixed(1)} °C',
-                        Icons.keyboard_arrow_up,
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoRow(
-                        'Temperatura Mínima',
-                        '${_fermentationDto.temperatureMin.toStringAsFixed(1)} °C',
-                        Icons.keyboard_arrow_down,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              if (_fermentationDto.observations.isNotEmpty) ...[
-                const SizedBox(height: 16),
-
-                // Card de Observaciones
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 4,
-                  color: Colors.teal.shade50,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.description,
-                              color: Colors.teal.shade600,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'Observaciones',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                            Icon(Icons.note_outlined, color: ColorPalette.vinoTinto, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Observaciones',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: ColorPalette.vinoTinto,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        _buildTextSection(
-                          'Observaciones',
-                          _fermentationDto.observations,
-                          Icons.note,
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _fermentationDto.observations,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade700,
+                              height: 1.5,
+                            ),
+                          ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
-              ],
-
-              const SizedBox(height: 24),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
-  Widget _buildInfoRow(String label, String value, IconData icon) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          size: 20,
-          color: Colors.grey.shade600,
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTextSection(String label, String value, IconData icon) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: Colors.grey.shade600,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: 15,
-              color: Colors.black87,
-              height: 1.4,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }
-
-  
