@@ -1,4 +1,3 @@
-
 /*
 {
   "batchId": "string",
@@ -44,11 +43,12 @@ class ReceptionStageDto {
   });
 
   factory ReceptionStageDto.fromJson(Map<String, dynamic> json) {
+    
     return ReceptionStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
-      startedAt: json['startedAt'] ?? '',
-      completedAt: json['completedAt'] ?? '',
+      startedAt: json['startedAt']?.toString().trim() ?? '',
+      completedAt: json['completedAt']?.toString().trim() ?? '',
       completedBy: json['completedBy'] ?? '',
       isCompleted: json['isCompleted'] ?? false,
       sugarLevel: (json['sugarLevel'] ?? 0).toDouble(),
@@ -74,7 +74,4 @@ class ReceptionStageDto {
       observations: observations,
     );
   }
-
-
-
 }

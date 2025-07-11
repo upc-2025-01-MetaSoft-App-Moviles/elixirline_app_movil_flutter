@@ -12,7 +12,7 @@ class FiltrationStageService {
 
   Future<FiltrationStageDto> getFiltrationStage(String wineBatchId) {
     return http
-        .get(Uri.parse("$_baseUrl/$wineBatchId"))
+        .get(Uri.parse("$_baseUrl/$wineBatchId/filtration"))
         .then((response) {
           if (response.statusCode == HttpStatus.ok) {
             final map = jsonDecode(response.body);
@@ -28,10 +28,10 @@ class FiltrationStageService {
         });
   }
 
-  Future<FiltrationStageDto> create(Map<String, dynamic> stageData) {
+  Future<FiltrationStageDto> create(String wineBatchId, Map<String, dynamic> stageData) {
     return http
         .post(
-          Uri.parse(_baseUrl),
+          Uri.parse("$_baseUrl/$wineBatchId/filtration"),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(stageData),
         )
@@ -58,7 +58,7 @@ class FiltrationStageService {
   ) {
     return http
         .put(
-          Uri.parse("$_baseUrl/$id"),
+          Uri.parse("$_baseUrl/$id/filtration"),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(stageData),
         )

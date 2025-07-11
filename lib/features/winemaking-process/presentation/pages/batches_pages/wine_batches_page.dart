@@ -182,109 +182,289 @@ class _WineBatchesPageState extends State<WineBatchesPage> {
   Widget _buildFilteredBatches() {
     return Expanded(
       child: filteredBatches.isEmpty
-          ? const Center(
-              child: Text(
-                'No se encontraron lotes de vino.',
-                style: TextStyle(fontSize: 16, color: ColorPalette.grisPizarra),
-              ),
-            )
+          ? _buildEmptyState()
           : ListView.builder(
+              padding: const EdgeInsets.only(top: 8.0),
               itemCount: filteredBatches.length,
               itemBuilder: (context, index) {
                 var batch = filteredBatches[index];
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 4.0,
-                  ),
-
-                  child: InkWell(
-                    splashColor: ColorPalette.vinoTinto.withOpacity(0.2),
-                    highlightColor: ColorPalette.vinoTinto.withOpacity(0.1),
-                    onTap: () async {
-                      final updatedBatch = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              WineBatchDetailsPage(batch: batch),
-                        ),
-                      );
-
-                      if (updatedBatch != null &&
-                          updatedBatch is WineBatchDTO) {
-                        _updateBatch(updatedBatch);
-                      }
-                    },
-
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Código: ${batch.internalCode}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                          Divider(
-                            thickness: 1.0,
-                            color: ColorPalette.grisPizarra,
-                          ),
-
-                          _buildIconTextRow(
-                            Icons.calendar_today,
-                            'Campaña: ${batch.campaign}',
-                          ),
-                          _buildIconTextRow(
-                            Icons.landscape,
-                            'Viñedo: ${batch.vineyard}',
-                          ),
-                          _buildIconTextRow(
-                            Icons.eco,
-                            'Variedad de uva: ${batch.grapeVariety}',
-                          ),
-
-                          Row(
-                            children: [
-                              Icon(
-                                FontAwesomeIcons.user,
-                                size: 16,
-                                color: ColorPalette.grisPizarra,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Creado por: ${batch.createdBy.split('@').first}',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: ColorPalette.grisPizarra,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
+                return _buildBatchCard(batch, index);
               },
             ),
     );
   }
 
-  // Widget para mostrar icono y texto uno al lado de otro
-  Widget _buildIconTextRow(IconData icon, String text) {
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: ColorPalette.vinoTinto.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Icon(
+              Icons.wine_bar_outlined,
+              size: 64,
+              color: ColorPalette.vinoTinto.withOpacity(0.6),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No se encontraron lotes de vino',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Crea tu primer lote o ajusta los filtros de búsqueda',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBatchCard(WineBatchDTO batch, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        elevation: 4,
+        shadowColor: ColorPalette.vinoTinto,
+        color: Colors.grey.shade50,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          splashColor: ColorPalette.vinoTinto.withOpacity(0.1),
+            highlightColor: ColorPalette.vinoTinto.withOpacity(0.05),
+            onTap: () async {
+              final updatedBatch = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WineBatchDetailsPage(batch: batch),
+                ),
+              );
+
+              if (updatedBatch != null && updatedBatch is WineBatchDTO) {
+                _updateBatch(updatedBatch);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header con código y badge
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: ColorPalette.vinoTinto.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.local_drink_outlined,
+                                color: ColorPalette.vinoTinto,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    batch.internalCode,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: ColorPalette.vinoTinto,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.green.withOpacity(0.3),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Lote #${index + 1}',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.green.shade700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: ColorPalette.vinoTinto.withOpacity(0.6),
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Información principal en grid
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildInfoItem(
+                          Icons.calendar_today_outlined,
+                          'Campaña',
+                          batch.campaign,
+                          Colors.blue,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildInfoItem(
+                          Icons.eco_outlined,
+                          'Variedad',
+                          batch.grapeVariety,
+                          Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Información secundaria
+                  _buildDetailRow(
+                    Icons.landscape_outlined,
+                    'Viñedo',
+                    batch.vineyard,
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  _buildDetailRow(
+                    FontAwesomeIcons.user,
+                    'Creado por',
+                    batch.createdBy.split('@').first,
+                  ),
+                ],
+              ),
+            ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(IconData icon, String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                color: color,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade800,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Colors.black54),
-        const SizedBox(width: 8),
-        Text(text, style: const TextStyle(fontSize: 16)),
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Icon(
+            icon,
+            size: 14,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }

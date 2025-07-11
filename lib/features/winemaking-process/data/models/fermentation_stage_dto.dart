@@ -64,8 +64,8 @@ class FermentationStageDto {
     return FermentationStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
-      startedAt: json['startedAt'] ?? '',
-      completedAt: json['completedAt'] ?? '',
+      startedAt: json['startedAt']?.toString() ?? '',
+      completedAt: json['completedAt']?.toString() ?? '',
       completedBy: json['completedBy'] ?? '',
       isCompleted: json['isCompleted'] ?? false,
       yeastUsed: json['yeastUsed'] ?? '',

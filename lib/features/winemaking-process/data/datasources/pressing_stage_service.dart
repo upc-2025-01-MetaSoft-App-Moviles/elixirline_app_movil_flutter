@@ -13,7 +13,7 @@ class PressingStageService {
 
   Future<PressingStageDto> getPressingStage(String wineBatchId) {
     return http
-        .get(Uri.parse("$_baseUrl/$wineBatchId"))
+        .get(Uri.parse("$_baseUrl/$wineBatchId/pressing"))
         .then((response) {
           if (response.statusCode == HttpStatus.ok) {
             final map = jsonDecode(response.body);
@@ -29,10 +29,10 @@ class PressingStageService {
         });
   }
 
-  Future<PressingStageDto> create(Map<String, dynamic> stageData) {
+  Future<PressingStageDto> create(String wineBatchId, Map<String, dynamic> stageData) {
     return http
         .post(
-          Uri.parse(_baseUrl),
+          Uri.parse("$_baseUrl/$wineBatchId/pressing"),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(stageData),
         )
@@ -54,12 +54,12 @@ class PressingStageService {
   }
 
   Future<PressingStageDto> update(
-    String id,
+    String wineBatchId,
     Map<String, dynamic> stageData,
   ) {
     return http
         .put(
-          Uri.parse("$_baseUrl/$id"),
+          Uri.parse("$_baseUrl/$wineBatchId/pressing"),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(stageData),
         )

@@ -54,8 +54,8 @@ class ClarificationStageDto {
     return ClarificationStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
-      startedAt: json['startedAt'] ?? '',
-      completedAt: json['completedAt'] ?? '',
+      startedAt: json['startedAt']?.toString() ?? '',
+      completedAt: json['completedAt']?.toString() ?? '',
       completedBy: json['completedBy'] ?? '',
       isCompleted: json['isCompleted'] ?? false,
       method: json['method'] ?? '',

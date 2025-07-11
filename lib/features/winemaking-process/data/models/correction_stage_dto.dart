@@ -61,8 +61,8 @@ class CorrectionStageDto {
     return CorrectionStageDto(
       batchId: json['batchId'] ?? '',
       stageType: json['stageType'] ?? '',
-      startedAt: json['startedAt'] ?? '',
-      completedAt: json['completedAt'] ?? '',
+      startedAt: json['startedAt']?.toString() ?? '',
+      completedAt: json['completedAt']?.toString() ?? '',
       completedBy: json['completedBy'] ?? '',
       observations: json['observations'] ?? '',
       isCompleted: json['isCompleted'] ?? false,

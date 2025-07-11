@@ -105,26 +105,165 @@ class _CreateOrEditWineBatchPageState extends State<CreateAndEditWineBatchPage> 
             backgroundColor: ColorPalette.vinoTinto,
             foregroundColor: Colors.white,
             title: Text(
-              isEditing ? 'Editar Lote' : 'Crear Lote',
+              isEditing ? 'Editar Lote de Vino' : 'Crear Lote de Vino',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          body: Padding(
+          body: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Form(
               key: _formKey,
-              child: ListView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTextField('Código Interno', _internalCodeController),
-                  _buildTextField('Campaña', _campaignController),
-                  _buildTextField('Viñedo', _vineyardController),
-                  _buildTextField('Variedad de uva', _grapeVarietyController),
-                  _buildTextField('Creado por', _createdByController),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _onSave,
-                    child: Text(isEditing ? 'Actualizar' : 'Crear'),
+                  // Header Card con información
+                  Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 6,
+                    shadowColor: ColorPalette.vinoTinto.withOpacity(0.2),
+                    color: Colors.grey.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: ColorPalette.vinoTinto.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.local_drink,
+                                  color: ColorPalette.vinoTinto,
+                                  size: 28,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isEditing ? 'Modificar Lote de Vino' : 'Nuevo Lote de Vino',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: ColorPalette.vinoTinto,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      isEditing 
+                                        ? 'Actualiza la información del lote existente'
+                                        : 'Completa la información para crear un nuevo lote',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Campos de formulario organizados en cards
+                  _buildFormSection(
+                    'Información Básica',
+                    Icons.info_outline,
+                    Colors.blue,
+                    [
+                      _buildTextField('Código Interno', _internalCodeController, Icons.qr_code),
+                      _buildTextField('Campaña', _campaignController, Icons.calendar_today),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  _buildFormSection(
+                    'Origen y Variedad',
+                    Icons.nature,
+                    Colors.green,
+                    [
+                      _buildTextField('Viñedo', _vineyardController, Icons.landscape),
+                      _buildTextField('Variedad de uva', _grapeVarietyController, Icons.eco),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  _buildFormSection(
+                    'Información del Usuario',
+                    Icons.person,
+                    Colors.orange,
+                    [
+                      _buildTextField('Creado por', _createdByController, Icons.account_circle),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Botón de acción mejorado
+                  Container(
+                    width: double.infinity,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        colors: [
+                          ColorPalette.vinoTinto,
+                          ColorPalette.vinoTinto.withOpacity(0.8),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ColorPalette.vinoTinto.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _onSave,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isEditing ? Icons.update : Icons.add_circle,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            isEditing ? 'Actualizar Lote' : 'Crear Lote',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -134,14 +273,80 @@ class _CreateOrEditWineBatchPageState extends State<CreateAndEditWineBatchPage> 
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildFormSection(String title, IconData icon, Color color, List<Widget> fields) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      shadowColor: color.withOpacity(0.2),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...fields,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, [IconData? icon]) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          prefixIcon: icon != null ? Icon(icon, color: ColorPalette.vinoTinto) : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: ColorPalette.vinoTinto, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          contentPadding: const EdgeInsets.all(16),
         ),
         validator: (value) =>
             value == null || value.trim().isEmpty ? 'Campo requerido' : null,
