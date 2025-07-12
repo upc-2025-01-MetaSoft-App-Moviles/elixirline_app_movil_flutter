@@ -30,6 +30,9 @@ import 'package:elixirline_app_movil_flutter/features/winemaking-process/present
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/filtration_pages/filtration_details_page.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/bottling_pages/bottling_details_page.dart';
 
+import '../../lib/features/winemaking-process/presentation/pages/correction_pages/correction_create_and_edit_page.dart';
+import '../../lib/features/winemaking-process/presentation/pages/reception_pages/reception_create_and_edit_page.dart';
+
 void main() {
   group('===== Prueba Integral Completa del Proceso de Vinificación ====== ', () {
     
