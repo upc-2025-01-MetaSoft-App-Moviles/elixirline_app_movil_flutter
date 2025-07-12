@@ -8,7 +8,7 @@ class FermentationStageService {
   final String _baseUrl;
 
   FermentationStageService(String resourceEndpoint)
-    : _baseUrl = 'http://10.0.2.2:5110/api/v1$resourceEndpoint';
+    : _baseUrl = 'https://elixirline.azurewebsites.net/api/v1$resourceEndpoint';
 
   Future<FermentationStageDto> getFermentationStage(String wineBatchId) {
     return http

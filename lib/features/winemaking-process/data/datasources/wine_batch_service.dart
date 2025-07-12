@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 class WineBatchService {
   final String _baseUrl;
 
-  WineBatchService(String resourceEndpoint) : _baseUrl = 'http://10.0.2.2:5110/api/v1$resourceEndpoint';
+  WineBatchService(String resourceEndpoint) : _baseUrl = 'https://elixirline.azurewebsites.net/api/v1$resourceEndpoint';
 
   Future<List<WineBatchDTO>> getWineBatches() {
     return http

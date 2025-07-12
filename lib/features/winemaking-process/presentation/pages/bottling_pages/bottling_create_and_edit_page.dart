@@ -20,7 +20,7 @@ class BottlingCreateAndEditPage extends StatefulWidget {
 }
 
 class _BottlingCreateAndEditPageState extends State<BottlingCreateAndEditPage> {
-  final BottlingStageService _bottlingService = BottlingStageService('/wine-batches');
+  final BottlingStageService _bottlingService = BottlingStageService('/wine-batch');
   final _formKey = GlobalKey<FormState>();
 
   // Controllers para línea y producción
@@ -92,30 +92,98 @@ class _BottlingCreateAndEditPageState extends State<BottlingCreateAndEditPage> {
     }
   }
 
+  DateTime? _parseDate(String dateStr) {
+    if (dateStr.isEmpty) {
+      debugPrint('🗓️ [BOTTLING] dateStr está vacío');
+      return null;
+    }
+    
+    try {
+      debugPrint('🗓️ [BOTTLING] Intentando parsear: "$dateStr"');
+      
+      // Limpiar la fecha removiendo componentes de tiempo si existen
+      String cleanedDateStr = dateStr.trim();
+      if (cleanedDateStr.contains(' ')) {
+        cleanedDateStr = cleanedDateStr.split(' ')[0];
+      }
+      
+      // Intentar formato dd/MM/yyyy
+      if (cleanedDateStr.contains('/')) {
+        final parts = cleanedDateStr.split('/');
+        if (parts.length == 3) {
+          final day = int.tryParse(parts[0]);
+          final month = int.tryParse(parts[1]);
+          final year = int.tryParse(parts[2]);
+          if (day != null && month != null && year != null) {
+            final result = DateTime(year, month, day);
+            debugPrint('🗓️ [BOTTLING] Fecha parseada con formato dd/MM/yyyy: $result');
+            return result;
+          }
+        }
+      }
+      
+      // Intentar formato dd-MM-yyyy
+      if (cleanedDateStr.contains('-') && !cleanedDateStr.contains('T')) {
+        final parts = cleanedDateStr.split('-');
+        if (parts.length == 3) {
+          final day = int.tryParse(parts[0]);
+          final month = int.tryParse(parts[1]);
+          final year = int.tryParse(parts[2]);
+          if (day != null && month != null && year != null) {
+            final result = DateTime(year, month, day);
+            debugPrint('🗓️ [BOTTLING] Fecha parseada con formato dd-MM-yyyy: $result');
+            return result;
+          }
+        }
+      }
+      
+      // Intentar formato ISO o con T
+      if (cleanedDateStr.contains('T')) {
+        final result = DateTime.parse(cleanedDateStr);
+        debugPrint('🗓️ [BOTTLING] Fecha parseada con formato ISO: $result');
+        return result;
+      }
+      
+    } catch (e) {
+      debugPrint('❌ [BOTTLING] Error parseando fecha "$dateStr": $e');
+    }
+    
+    return null;
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
   String _formatDateForInput(String dateString) {
     if (dateString.isEmpty) return '';
     
     try {
-      DateTime date;
-      if (dateString.contains('T')) {
-        date = DateTime.parse(dateString);
-      } else if (dateString.contains('/')) {
-        final parts = dateString.split('/');
-        if (parts.length == 3) {
-          date = DateTime(
-            int.parse(parts[2]),
-            int.parse(parts[1]),
-            int.parse(parts[0]),
-          );
-        } else {
-          return dateString;
-        }
-      } else {
-        return dateString;
+      DateTime? date = _parseDate(dateString);
+      if (date != null) {
+        return _formatDate(date);
       }
-      
-      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+      return dateString;
     } catch (e) {
+      debugPrint('❌ [BOTTLING] Error formateando fecha para input: $e');
+      return dateString;
+    }
+  }
+
+  String _formatDateForApi(String dateString) {
+    if (dateString.isEmpty) return '';
+    
+    try {
+      DateTime? date = _parseDate(dateString);
+      if (date != null) {
+        String formatted = _formatDate(date);
+        debugPrint('🔄 [BOTTLING] Formateando para API: "$dateString" -> "$formatted"');
+        return formatted;
+      }
+      debugPrint('⚠️ [BOTTLING] No se pudo parsear fecha: "$dateString", devolviendo original');
+      return dateString;
+    } catch (e) {
+      debugPrint('❌ [BOTTLING] Error formateando fecha para API: $e');
       return dateString;
     }
   }
@@ -172,6 +240,8 @@ class _BottlingCreateAndEditPageState extends State<BottlingCreateAndEditPage> {
     });
 
     try {
+      debugPrint('🍷 [BOTTLING] Iniciando guardado de embotellado - Modo: ${_isEdit ? "Editar" : "Crear"}');
+      
       final bottlingData = {
         'batchId': widget.batchId,
         'bottlingLine': _bottlingLineController.text.trim(),
@@ -184,12 +254,14 @@ class _BottlingCreateAndEditPageState extends State<BottlingCreateAndEditPage> {
         'wasFiltered': _wasFiltered,
         'wereLabelsApplied': _wereLabelsApplied,
         'wereCapsulesApplied': _wereCapsulesApplied,
-        'startedAt': _startedAtController.text.trim(),
-        'completedAt': _completedAtController.text.trim(),
+        'startedAt': _formatDateForApi(_startedAtController.text.trim()),
+        'completedAt': _formatDateForApi(_completedAtController.text.trim()),
         'completedBy': _completedByController.text.trim(),
         'observations': _observationsController.text.trim(),
         'isCompleted': _isCompleted,
       };
+
+      debugPrint('📤 [BOTTLING] Datos a enviar: $bottlingData');
 
       BottlingStageDto result;
       if (_isEdit) {
@@ -197,12 +269,15 @@ class _BottlingCreateAndEditPageState extends State<BottlingCreateAndEditPage> {
           widget.batchId,
           bottlingData,
         );
+        debugPrint('✅ [BOTTLING] Embotellado actualizado exitosamente');
       } else {
         result = await _bottlingService.create(widget.batchId, bottlingData);
+        debugPrint('✅ [BOTTLING] Embotellado creado exitosamente');
       }
 
       Navigator.of(context).pop(result);
     } catch (e) {
+      debugPrint('❌ [BOTTLING] Error al ${_isEdit ? 'actualizar' : 'crear'} embotellado: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error al ${_isEdit ? 'actualizar' : 'crear'} el embotellado: $e'),
@@ -664,10 +739,14 @@ class _BottlingCreateAndEditPageState extends State<BottlingCreateAndEditPage> {
                           ),
                           child: SwitchListTile(
                             title: const Text(
-                              'Etapa Completada',
+                              'Marcar como completada',
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
-                            subtitle: const Text('Marcar como proceso finalizado'),
+                            subtitle: Text(
+                              _isCompleted
+                                  ? 'La etapa está marcada como completada'
+                                  : 'La etapa aún no está completada',
+                            ),
                             value: _isCompleted,
                             onChanged: (value) {
                               setState(() {

@@ -103,7 +103,7 @@ class _ClarificationDetailsPageState extends State<ClarificationDetailsPage> {
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(context).pop(_clarificationDto),
             tooltip: 'Volver',
           ),
         ),

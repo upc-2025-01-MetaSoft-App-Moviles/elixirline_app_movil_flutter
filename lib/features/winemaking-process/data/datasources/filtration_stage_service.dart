@@ -8,7 +8,7 @@ class FiltrationStageService {
   final String _baseUrl;
 
   FiltrationStageService(String resourceEndpoint)
-    : _baseUrl = 'http://10.0.2.2:5110/api/v1$resourceEndpoint';
+    : _baseUrl = 'https://elixirline.azurewebsites.net/api/v1$resourceEndpoint';
 
   Future<FiltrationStageDto> getFiltrationStage(String wineBatchId) {
     return http

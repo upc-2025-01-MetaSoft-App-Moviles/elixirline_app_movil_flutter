@@ -9,7 +9,7 @@ class ReceptionStageService {
   final String _baseUrl;
 
   ReceptionStageService(String resourceEndpoint)
-    : _baseUrl = 'http://10.0.2.2:5110/api/v1$resourceEndpoint';
+    : _baseUrl = 'https://elixirline.azurewebsites.net/api/v1$resourceEndpoint';
 
   Future<ReceptionStageDto> getReceptionStage(String wineBatchId) {
     return http

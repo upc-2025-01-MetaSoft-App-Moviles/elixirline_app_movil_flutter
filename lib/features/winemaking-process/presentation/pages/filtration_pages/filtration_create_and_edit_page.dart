@@ -79,27 +79,36 @@ class _FiltrationCreateAndEditPageState
   void _loadInitialData() {
     if (_isEdit && widget.initialData != null) {
       final data = widget.initialData!;
+      debugPrint('📊 [FILTRATION] Cargando datos iniciales: ${data.toString()}');
       
       _filterTypeController.text = data.filterType;
       _filtrationTypeController.text = data.filtrationType;
       _filterMediaController.text = data.filterMedia;
-      _poreMicronsController.text = data.poreMicrons > 0 ? data.poreMicrons.toString() : '';
-      
-      _turbidityBeforeController.text = data.turbidityBefore > 0 ? data.turbidityBefore.toString() : '';
-      _turbidityAfterController.text = data.turbidityAfter > 0 ? data.turbidityAfter.toString() : '';
-      _temperatureController.text = data.temperature > 0 ? data.temperature.toString() : '';
-      _pressureBarsController.text = data.pressureBars > 0 ? data.pressureBars.toString() : '';
-      _filteredVolumeLitersController.text = data.filteredVolumeLiters > 0 ? data.filteredVolumeLiters.toString() : '';
+      _poreMicronsController.text = data.poreMicrons.toString();
+      _turbidityBeforeController.text = data.turbidityBefore.toString();
+      _turbidityAfterController.text = data.turbidityAfter.toString();
+      _temperatureController.text = data.temperature.toString();
+      _pressureBarsController.text = data.pressureBars.toString();
+      _filteredVolumeLitersController.text = data.filteredVolumeLiters.toString();
+      _changeReasonController.text = data.changeReason;
       
       _startedAtController.text = _formatDateForInput(data.startedAt);
       _completedAtController.text = _formatDateForInput(data.completedAt);
       _completedByController.text = data.completedBy;
       _observationsController.text = data.observations;
-      _changeReasonController.text = data.changeReason;
       
       _isSterile = data.isSterile;
       _filterChanged = data.filterChanged;
       _isCompleted = data.isCompleted;
+    } else {
+      // Valores por defecto para nueva etapa
+      _startedAtController.text = _formatDate(DateTime.now());
+      _poreMicronsController.text = '0.0';
+      _turbidityBeforeController.text = '0.0';
+      _turbidityAfterController.text = '0.0';
+      _temperatureController.text = '0.0';
+      _pressureBarsController.text = '0.0';
+      _filteredVolumeLitersController.text = '0.0';
     }
   }
 
@@ -245,65 +254,119 @@ class _FiltrationCreateAndEditPageState
   }
 
   Future<void> _saveFiltration() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final filtrationData = {
-        'batchId': widget.batchId,
-        'filterType': _filterTypeController.text.trim(),
-        'filtrationType': _filtrationTypeController.text.trim(),
-        'filterMedia': _filterMediaController.text.trim(),
-        'poreMicrons': double.tryParse(_poreMicronsController.text.trim()) ?? 0.0,
-        
-        // Para crear - usar nombres específicos
-        if (!_isEdit) 'turbidityBeforeNtu': double.tryParse(_turbidityBeforeController.text.trim()) ?? 0.0,
-        if (!_isEdit) 'turbidityAfterNtu': double.tryParse(_turbidityAfterController.text.trim()) ?? 0.0,
-        
-        // Para editar - usar nombres específicos
-        if (_isEdit) 'initialTurbidityNtu': double.tryParse(_turbidityBeforeController.text.trim()) ?? 0.0,
-        if (_isEdit) 'finalTurbidityNtu': double.tryParse(_turbidityAfterController.text.trim()) ?? 0.0,
-        
-        'temperature': double.tryParse(_temperatureController.text.trim()) ?? 0.0,
-        'pressureBars': double.tryParse(_pressureBarsController.text.trim()) ?? 0.0,
-        'filteredVolumeLiters': double.tryParse(_filteredVolumeLitersController.text.trim()) ?? 0.0,
-        'isSterile': _isSterile,
-        'filterChanged': _filterChanged,
-        'changeReason': _changeReasonController.text.trim(),
-        'startedAt': _formatDateForApi(_startedAtController.text.trim()),
-        'completedAt': _formatDateForApi(_completedAtController.text.trim()),
-        'completedBy': _completedByController.text.trim(),
-        'observations': _observationsController.text.trim(),
-        'isCompleted': _isCompleted,
-      };
+      debugPrint('🔄 [FILTRATION] Iniciando guardado de filtración...');
+      debugPrint('🔄 [FILTRATION] Es edición: $_isEdit');
+
+      Map<String, dynamic> filtrationMap;
+
+      if (_isEdit) {
+        // Payload para EDITAR - estructura específica para edición
+        final String formattedCompletedAt = _isCompleted 
+            ? _formatDateForApi(_completedAtController.text.isNotEmpty 
+                ? _completedAtController.text 
+                : _formatDate(DateTime.now()))
+            : '';
+
+        debugPrint('🗓️ [FILTRATION] CompletedAt original: "${widget.initialData?.completedAt ?? ''}"');
+        debugPrint('🗓️ [FILTRATION] CompletedAt formateado: "$formattedCompletedAt"');
+
+        filtrationMap = {
+          'batchId': widget.batchId,
+          'stageType': 'filtration',
+          'startedAt': _formatDateForApi(_startedAtController.text.trim()),
+          'completedAt': formattedCompletedAt,
+          'completedBy': _completedByController.text.trim(),
+          'observations': _observationsController.text.trim(),
+          'isCompleted': _isCompleted,
+          'filterType': _filterTypeController.text.trim(),
+          'filtrationType': _filtrationTypeController.text.trim(),
+          'filterMedia': _filterMediaController.text.trim(),
+          'poreMicrons': double.tryParse(_poreMicronsController.text.trim()) ?? 0.0,
+          'turbidityBefore': double.tryParse(_turbidityBeforeController.text.trim()) ?? 0.0,
+          'turbidityAfter': double.tryParse(_turbidityAfterController.text.trim()) ?? 0.0,
+          'temperature': double.tryParse(_temperatureController.text.trim()) ?? 0.0,
+          'pressureBars': double.tryParse(_pressureBarsController.text.trim()) ?? 0.0,
+          'filteredVolumeLiters': double.tryParse(_filteredVolumeLitersController.text.trim()) ?? 0.0,
+          'isSterile': _isSterile,
+          'filterChanged': _filterChanged,
+          'changeReason': _changeReasonController.text.trim(),
+        };
+      } else {
+        // Payload para CREAR - estructura específica para creación
+        filtrationMap = {
+          'wineBatchId': widget.batchId,
+          'filtrationType': _filtrationTypeController.text.trim(),
+          'filterMedia': _filterMediaController.text.trim(),
+          'poreMicrons': double.tryParse(_poreMicronsController.text.trim()) ?? 0.0,
+          'turbidityBefore': double.tryParse(_turbidityBeforeController.text.trim()) ?? 0.0,
+          'turbidityAfter': double.tryParse(_turbidityAfterController.text.trim()) ?? 0.0,
+          'temperature': double.tryParse(_temperatureController.text.trim()) ?? 0.0,
+          'pressureBars': double.tryParse(_pressureBarsController.text.trim()) ?? 0.0,
+          'filteredVolumeLiters': double.tryParse(_filteredVolumeLitersController.text.trim()) ?? 0.0,
+          'isSterile': _isSterile,
+          'filterChanged': _filterChanged,
+          'changeReason': _changeReasonController.text.trim(),
+          'startedAt': _formatDateForApi(_startedAtController.text.trim()),
+          'completedBy': _completedByController.text.trim(),
+          'observations': _observationsController.text.trim(),
+        };
+      }
+
+      debugPrint('📦 [FILTRATION] Payload completo: $filtrationMap');
 
       FiltrationStageDto result;
       if (_isEdit) {
-        result = await _filtrationService.update(
-          widget.batchId,
-          filtrationData,
-        );
+        debugPrint('🔄 [FILTRATION] Llamando updateFiltrationStage service');
+        result = await _filtrationService.update(widget.batchId, filtrationMap);
+        debugPrint('✅ [FILTRATION] Etapa actualizada exitosamente: ${result.toString()}');
       } else {
-        result = await _filtrationService.create(widget.batchId, filtrationData);
+        debugPrint('🔄 [FILTRATION] Llamando createFiltrationStage service');
+        result = await _filtrationService.create(widget.batchId, filtrationMap);
+        debugPrint('✅ [FILTRATION] Nueva etapa creada exitosamente: ${result.toString()}');
       }
 
-      Navigator.of(context).pop(result);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _isEdit 
+                  ? 'Etapa de filtración actualizada correctamente'
+                  : 'Etapa de filtración creada correctamente',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        
+        debugPrint('🔄 [FILTRATION] Navegando de vuelta con resultado: ${result.toString()}');
+        Navigator.of(context).pop(result);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al ${_isEdit ? 'actualizar' : 'crear'} la filtración: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      debugPrint('❌ [FILTRATION] Error al guardar la etapa de filtración: $e');
+      debugPrint('❌ [FILTRATION] Tipo de error: ${e.runtimeType}');
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error al ${_isEdit ? 'actualizar' : 'crear'} la etapa: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -321,8 +384,11 @@ class _FiltrationCreateAndEditPageState
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios),
-            onPressed: () => Navigator.of(context).pop(),
-            tooltip: 'Volver',
+            onPressed: () {
+              debugPrint('🔄 [FILTRATION] Saliendo sin guardar cambios');
+              Navigator.of(context).pop();
+            },
+            tooltip: 'Volver sin guardar',
           ),
         ),
         body: Form(
@@ -362,20 +428,31 @@ class _FiltrationCreateAndEditPageState
                           ],
                         ),
                         const SizedBox(height: 20),
-                        TextFormField(
-                          controller: _filterTypeController,
-                          decoration: InputDecoration(
-                            labelText: 'Tipo de Filtro',
-                            hintText: 'Ej: Cartucho, Membrana, Placa',
-                            prefixIcon: const Icon(Icons.category),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        
+                        // Campo filterType solo para edición
+                        if (_isEdit) ...[
+                          TextFormField(
+                            controller: _filterTypeController,
+                            decoration: InputDecoration(
+                              labelText: 'Tipo de Filtro',
+                              hintText: 'Ej: Cartucho, Membrana, Placa',
+                              prefixIcon: const Icon(Icons.category),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
                             ),
-                            filled: true,
-                            fillColor: Colors.white,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Este campo es obligatorio';
+                              }
+                              return null;
+                            },
                           ),
-                        ),
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
+                        ],
+                        
                         TextFormField(
                           controller: _filtrationTypeController,
                           decoration: InputDecoration(
@@ -388,6 +465,12 @@ class _FiltrationCreateAndEditPageState
                             filled: true,
                             fillColor: Colors.white,
                           ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Este campo es obligatorio';
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
@@ -402,6 +485,12 @@ class _FiltrationCreateAndEditPageState
                             filled: true,
                             fillColor: Colors.white,
                           ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Este campo es obligatorio';
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
@@ -420,6 +509,12 @@ class _FiltrationCreateAndEditPageState
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                           ],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Este campo es obligatorio';
+                            }
+                            return null;
+                          },
                         ),
                       ],
                     ),

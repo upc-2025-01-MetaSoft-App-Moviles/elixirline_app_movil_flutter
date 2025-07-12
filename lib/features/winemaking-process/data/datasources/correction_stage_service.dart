@@ -9,7 +9,7 @@ class CorrectionStageService {
   final String _baseUrl;
 
   CorrectionStageService(String resourceEndpoint)
-    : _baseUrl = 'http://10.0.2.2:5110/api/v1$resourceEndpoint';  
+    : _baseUrl = 'https://elixirline.azurewebsites.net/api/v1$resourceEndpoint';  
 
   Future<CorrectionStageDto> getCorrectionStage(String wineBatchId) {
     return http
