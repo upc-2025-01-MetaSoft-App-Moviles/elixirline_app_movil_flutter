@@ -1,5 +1,6 @@
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batches_page.dart';
 import 'package:elixirline_app_movil_flutter/core/shared/test_data_generator.dart';
+import 'package:elixirline_app_movil_flutter/features/production-history/presentation/pages/production_history_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
@@ -326,7 +327,7 @@ class _MainPageState extends State<MainPage> {
             _buildTabNavigator(2, const Center(child: Text('Gestión de Insumos'))),
             _buildTabNavigator(3, const Center(child: Text('Actividades Agrícolas'))),
             _buildTabNavigator(4, const Center(child: Text('Gestión de Empleados'))),
-            _buildTabNavigator(5, const Center(child: Text('Historial de Producción'))),
+            _buildTabNavigator(5, const ProductionHistoryListPage()),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
