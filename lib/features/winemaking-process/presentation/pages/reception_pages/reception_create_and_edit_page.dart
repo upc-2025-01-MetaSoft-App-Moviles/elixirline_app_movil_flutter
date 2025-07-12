@@ -498,12 +498,12 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
         // Actualizar etapa existente
         result = await _receptionStageService.update(widget.batchId, data);
         if (kDebugMode) {
-          print('✅ Etapa actualizada exitosamente: ${result.toString()}');
+          print('Etapa actualizada exitosamente: ${result.toString()}');
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('✅ Etapa de recepción actualizada correctamente'),
+              content: Text('Etapa de recepción actualizada correctamente'),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 2),
             ),

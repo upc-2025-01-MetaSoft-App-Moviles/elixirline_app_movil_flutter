@@ -19,6 +19,7 @@ class ReceptionDetailsPage extends StatefulWidget {
 
 class _ReceptionDetailsPageState extends State<ReceptionDetailsPage> {
   late ReceptionStageDto _receptionDto;
+  bool _hasChanges = false; // Bandera para rastrear si hubo cambios
 
   @override
   void initState() {
@@ -40,6 +41,7 @@ class _ReceptionDetailsPageState extends State<ReceptionDetailsPage> {
     if (result != null) {
       setState(() {
         _receptionDto = result;
+        _hasChanges = true; // Marcar que hubo cambios
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -51,24 +53,34 @@ class _ReceptionDetailsPageState extends State<ReceptionDetailsPage> {
     }
   }
 
+  void _navigateBack() {
+    // Si hubo cambios, devolver el DTO actualizado; si no, devolver null
+    Navigator.of(context).pop(_hasChanges ? _receptionDto : null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: ColorPalette.vinoTinto,
-          foregroundColor: Colors.white,
-          automaticallyImplyLeading: false,
-          title: const Text(
-            'Detalles de Recepción',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      child: WillPopScope(
+        onWillPop: () async {
+          _navigateBack();
+          return false; // Evitar el pop automático porque ya lo manejamos manualmente
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: ColorPalette.vinoTinto,
+            foregroundColor: Colors.white,
+            automaticallyImplyLeading: false,
+            title: const Text(
+              'Detalles de Recepción',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: _navigateBack,
+              tooltip: 'Volver',
+            ),
           ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
-            onPressed: () => Navigator.of(context).pop(),
-            tooltip: 'Volver',
-          ),
-        ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -355,8 +367,9 @@ class _ReceptionDetailsPageState extends State<ReceptionDetailsPage> {
             ],
           ),
         ),
-      ),
-    );
+        ), // Cierre del Scaffold
+      ), // Cierre del WillPopScope
+    ); // Cierre del SafeArea
   }
 
   Widget _buildInfoItem(IconData icon, String label, String value, Color color) {

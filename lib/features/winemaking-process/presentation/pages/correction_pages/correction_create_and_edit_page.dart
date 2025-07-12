@@ -291,43 +291,27 @@ class _CorrectionCreateAndEditPageState extends State<CorrectionCreateAndEditPag
 
       // Convertir la fecha al formato requerido por el backend (dd/MM/yyyy)
       String startedAt = _formatDate(_selectedDate!);
+      String completedAt = _isCompleted ? startedAt : '';
 
-      Map<String, dynamic> data;
-      
-      if (widget.initialData == null) {
-        // Estructura para CREAR nueva etapa
-        data = {
-          'initialSugarLevel': initialSugarLevel,
-          'finalSugarLevel': finalSugarLevel,
-          'addedSugarKg': addedSugarKg,
-          'initialPh': initialPh,
-          'finalPh': finalPh,
-          'acidType': acidType,
-          'acidAddedGl': acidAddedGl,
-          'so2AddedMgL': so2AddedMgL,
-          'justification': justification,
-          'startedAt': startedAt,
-          'completedBy': completedBy,
-          'observations': observations,
-        };
-      } else {
-        // Estructura para EDITAR etapa existente (usar PascalCase)
-        data = {
-          'StartedAt': startedAt,
-          'CompletedBy': completedBy,
-          'Observations': observations,
-          'IsCompleted': _isCompleted,
-          'InitialSugarLevel': initialSugarLevel,
-          'FinalSugarLevel': finalSugarLevel,
-          'AddedSugarKg': addedSugarKg,
-          'InitialPh': initialPh,
-          'FinalPh': finalPh,
-          'AcidType': acidType,
-          'AcidAddedGl': acidAddedGl,
-          'So2AddedMgL': so2AddedMgL,
-          'Justification': justification,
-        };
-      }
+      // Estructura que espera el backend (siempre la misma estructura)
+      Map<String, dynamic> data = {
+        'batchId': widget.batchId,
+        'stageType': 'correction',
+        'startedAt': startedAt,
+        'completedAt': completedAt,
+        'completedBy': completedBy,
+        'observations': observations,
+        'isCompleted': _isCompleted,
+        'initialSugarLevel': initialSugarLevel,
+        'finalSugarLevel': finalSugarLevel,
+        'addedSugarKg': addedSugarKg,
+        'finalPh': finalPh,
+        'initialPh': initialPh,
+        'acidType': acidType,
+        'acidAddedGl': acidAddedGl,
+        'so2AddedMgL': so2AddedMgL,
+        'justification': justification,
+      };
 
       if (kDebugMode) {
         print('📤 [CORRECTION] Datos a enviar: $data');
