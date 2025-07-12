@@ -1,3 +1,4 @@
+import 'package:elixirline_app_movil_flutter/features/fieldlog/presentation/field_log_entry_list_view.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batches_page.dart';
 import 'package:elixirline_app_movil_flutter/core/shared/test_data_generator.dart';
 import 'package:elixirline_app_movil_flutter/features/production-history/presentation/pages/production_history_list_page.dart';
@@ -22,7 +23,7 @@ class _MainPageState extends State<MainPage> {
 
   // Claves de navegadores por cada pestaña
   final List<GlobalKey<NavigatorState>> _navigatorKeys = List.generate(
-    6,
+    7,
     (_) => GlobalKey<NavigatorState>(),
   );
 
@@ -279,6 +280,11 @@ class _MainPageState extends State<MainPage> {
             title: const Text('Historial de Producción'),
             onTap: () => _navigateFromDrawer(5),
           ),
+          ListTile(
+          leading: const Icon(Icons.note_alt_outlined),
+           title: const Text('Bitácora de Campo'),
+            onTap: () => _navigateFromDrawer(6),
+          ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.science, color: Colors.orange),
@@ -329,6 +335,7 @@ class _MainPageState extends State<MainPage> {
             _buildTabNavigator(3, const Center(child: Text('Actividades Agrícolas'))),
             _buildTabNavigator(4, const Center(child: Text('Gestión de Empleados'))),
             _buildTabNavigator(5, const ProductionHistoryListPage()),
+            _buildTabNavigator(6, const FieldLogEntryListView()),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
