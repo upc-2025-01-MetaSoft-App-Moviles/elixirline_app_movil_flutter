@@ -431,66 +431,79 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                               ),
                           ],
                         ),
-                        trailing: Wrap(
-                          spacing: 2.0,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.access_time),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => WorkerAttendanceScreen(
-                                      workerId: worker.id,
-                                      workerName: worker.fullName,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.history),
-                              tooltip: 'Ver historial de tareas',
-                              onPressed: () {
-                                final viewModel =
-                                    Provider.of<WorkerTaskViewModel>(
-                                      context,
-                                      listen: false,
-                                    );
-                                viewModel.loadTasksForWorker(worker.id);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        WorkerTaskHistoryScreen(worker: worker),
-                                  ),
-                                );
-                              },
-                            ),
+                        trailing: PopupMenuButton<String>(
+  icon: const Icon(Icons.add_circle_outline),
+  onSelected: (value) {
+    switch (value) {
+      case 'asistencia':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WorkerAttendanceScreen(
+              workerId: worker.id,
+              workerName: worker.fullName,
+            ),
+          ),
+        );
+        break;
+      case 'tareas':
+        final viewModel = Provider.of<WorkerTaskViewModel>(
+          context,
+          listen: false,
+        );
+        viewModel.loadTasksForWorker(worker.id);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WorkerTaskHistoryScreen(worker: worker),
+          ),
+        );
+        break;
+      case 'evaluaciones':
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WorkerEvaluationScreen(worker: worker),
+          ),
+        );
+        break;
+      case 'eliminar':
+        _confirmDelete(worker);
+        break;
+    }
+  },
+  itemBuilder: (context) => [
+    const PopupMenuItem(
+      value: 'asistencia',
+      child: ListTile(
+        leading: Icon(Icons.access_time),
+        title: Text('Asistencia'),
+      ),
+    ),
+    const PopupMenuItem(
+      value: 'tareas',
+      child: ListTile(
+        leading: Icon(Icons.history),
+        title: Text('Historial de tareas'),
+      ),
+    ),
+    const PopupMenuItem(
+      value: 'evaluaciones',
+      child: ListTile(
+        leading: Icon(Icons.bar_chart_rounded, color: Colors.indigo),
+        title: Text('Evaluaciones'),
+      ),
+    ),
+    const PopupMenuItem(
+      value: 'eliminar',
+      child: ListTile(
+        leading: Icon(Icons.delete, color: Colors.red),
+        title: Text('Eliminar'),
+      ),
+    ),
+  ],
+),
 
-                            IconButton(
-                              icon: const Icon(
-                                Icons.bar_chart_rounded,
-                                color: Colors.indigo,
-                              ),
-                              tooltip: 'Ver evaluaciones',
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        WorkerEvaluationScreen(worker: worker),
-                                  ),
-                                );
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              tooltip: 'Eliminar',
-                              onPressed: () => _confirmDelete(worker),
-                            ),
-                          ],
-                        ),
                         onTap: () async {
                           final updatedWorker = await Navigator.push(
                             context,
