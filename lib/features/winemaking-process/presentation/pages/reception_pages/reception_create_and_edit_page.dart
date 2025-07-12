@@ -454,8 +454,8 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
         };
       } else {
         if (kDebugMode) {
-          print('✏️ === PREPARANDO DATOS PARA EDITAR ===');
-          print('✏️ Estado completado: $_isCompleted');
+          print('=== PREPARANDO DATOS PARA EDITAR ===');
+          print('Estado completado: $_isCompleted');
         }
         // Estructura para EDITAR etapa existente - incluir campos requeridos según el error
         data = {
@@ -473,13 +473,6 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
         };
       }
 
-      if (kDebugMode) {
-        print('📤 === DATOS FINALES A ENVIAR ===');
-        print('📤 Datos: ${data.toString()}');
-        print('📤 BatchId: ${widget.batchId}');
-        print('📤 Es edición: ${widget.initialData != null}');
-        print('📤 Tipo de operación: ${widget.initialData != null ? "UPDATE" : "CREATE"}');
-      }
 
       ReceptionStageDto result;
       if (widget.initialData == null) {
@@ -488,14 +481,13 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
         }
         // Crear nueva etapa
         result = await _receptionStageService.create(widget.batchId, data);
-        if (kDebugMode) {
-          print('✅ Etapa creada exitosamente: ${result.toString()}');
-        }
+      
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Etapa de recepción creada correctamente'),
               backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
             ),
           );
         }
@@ -511,8 +503,9 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Etapa de recepción actualizada correctamente'),
+              content: Text('✅ Etapa de recepción actualizada correctamente'),
               backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
             ),
           );
         }
@@ -520,10 +513,14 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
 
       if (kDebugMode) {
         print('🎉 === PROCESO COMPLETADO EXITOSAMENTE ===');
+        print('🔄 Navegando de vuelta con resultado actualizado');
       }
 
+      // ✅ CLAVE: Devolver el resultado actualizado para que la vista anterior se actualice
       if (mounted) {
-        Navigator.pop(context, result);
+        // Pequeño delay para que el usuario vea el mensaje de éxito
+        await Future.delayed(const Duration(milliseconds: 500));
+        Navigator.pop(context, result); // ✅ Devolver el resultado actualizado
       }
     } catch (e) {
       if (kDebugMode) {
