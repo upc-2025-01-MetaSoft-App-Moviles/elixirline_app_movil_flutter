@@ -1,5 +1,5 @@
 // ignore_for_file: unused_import
-
+import 'package:elixirline_app_movil_flutter/core/shared/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -20,21 +20,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ElixirLine Flutter App',
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const MainScreen(),
-        '/calendar': (context) => const CalendarScreen(),
-        '/newTask': (context) => const NewTaskScreen(),
-        '/parcels': (context) => const ParcelsScreen(),
-        '/newParcel': (context) => const NewParcelScreen(),
-      },
+      home: MainPage(),
     );
   }
 }
