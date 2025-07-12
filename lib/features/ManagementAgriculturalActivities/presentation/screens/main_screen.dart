@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/task_provider.dart';
+import 'package:elixirline_app_movil_flutter/features/ManagementAgriculturalActivities/presentation/screens/new_task_screen.dart';
+import 'package:elixirline_app_movil_flutter/features/ManagementAgriculturalActivities/presentation/screens/calendar_screen.dart';
+import 'package:elixirline_app_movil_flutter/features/ManagementAgriculturalActivities/presentation/screens/parcels_screen.dart';
+
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -65,27 +69,34 @@ class MainScreen extends ConsumerWidget {
                 QuickAccessButton(
                   text: 'Nueva actividad',
                   onPressed: () async {
-                    await Navigator.pushNamed(context, '/newTask');
-                    // ignore: unused_result
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => NewTaskScreen()),
+                    );
                     ref.refresh(taskProvider);
                   },
                 ),
                 QuickAccessButton(
                   text: 'Calendario',
                   onPressed: () {
-                    Navigator.pushNamed(context, '/calendar');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => CalendarScreen()),
+                    );
                   },
                 ),
+                Center(
+                  child: QuickAccessButton(
+                    text: 'Mis Lotes',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ParcelsScreen()),
+                      );
+                    },
+                  ),
+                ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: QuickAccessButton(
-                text: 'Mis Lotes',
-                onPressed: () {
-                  Navigator.pushNamed(context, '/parcels');
-                },
-              ),
             ),
           ],
         ),

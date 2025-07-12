@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison, cast_from_null_always_fails, curly_braces_in_flow_control_structures, use_build_context_synchronously
 
+import 'package:elixirline_app_movil_flutter/features/ManagementAgriculturalActivities/presentation/screens/new_task_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -30,8 +31,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF8B0000),
         child: const Icon(Icons.add, color: Colors.white),
-        onPressed: () {
-          Navigator.pushNamed(context, '/newTask');
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => NewTaskScreen()),
+          );
+          ref.refresh(taskProvider);
         },
       ),
       body: tasksAsync.when(

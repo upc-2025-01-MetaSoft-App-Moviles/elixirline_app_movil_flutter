@@ -1,3 +1,4 @@
+import 'package:elixirline_app_movil_flutter/features/ManagementAgriculturalActivities/presentation/screens/main_screen.dart';
 import 'package:elixirline_app_movil_flutter/features/fieldlog/presentation/field_log_entry_list_view.dart';
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batches_page.dart';
 import 'package:elixirline_app_movil_flutter/core/shared/test_data_generator.dart';
@@ -332,7 +333,7 @@ class _MainPageState extends State<MainPage> {
             _buildTabNavigator(0, const Center(child: Text('Perfil del Usuario'))),
             _buildTabNavigator(1, const WineBatchesPage()),
             _buildTabNavigator(2, const SupplyManagementMainPage()),
-            _buildTabNavigator(3, const Center(child: Text('Actividades Agrícolas'))),
+            _buildTabNavigator(3, const MainScreen()),
             _buildTabNavigator(4, const Center(child: Text('Gestión de Empleados'))),
             _buildTabNavigator(5, const ProductionHistoryListPage()),
             _buildTabNavigator(6, const FieldLogEntryListView()),
