@@ -230,20 +230,18 @@ class _FermentationCreateAndEditPageState
       if (widget.initialData == null) {
         // Estructura para CREAR nueva etapa
         stageMap = {
-          'wineBatchId': widget.wineBatchId,
-          'startedAt': startedAt,
-          'completedBy': _completedByController.text.trim().isEmpty ? null : _completedByController.text.trim(),
-          'fermentationType': _fermentationTypeController.text.trim().isEmpty ? null : _fermentationTypeController.text.trim(),
-          'tankCode': _tankCodeController.text.trim().isEmpty ? null : _tankCodeController.text.trim(),
           'yeastUsed': _yeastUsedController.text.trim().isEmpty ? null : _yeastUsedController.text.trim(),
-          'temperatureMin': _temperatureMinController.text.trim().isEmpty ? null : double.tryParse(_temperatureMinController.text.trim()),
-          'temperatureMax': _temperatureMaxController.text.trim().isEmpty ? null : double.tryParse(_temperatureMaxController.text.trim()),
+          'initialBrix': _initialSugarLevelController.text.trim().isEmpty ? null : double.tryParse(_initialSugarLevelController.text.trim()),
+          'finalBrix': _finalSugarLevelController.text.trim().isEmpty ? null : double.tryParse(_finalSugarLevelController.text.trim()),
           'initialPh': _initialPhController.text.trim().isEmpty ? null : double.tryParse(_initialPhController.text.trim()),
           'finalPh': _finalPhController.text.trim().isEmpty ? null : double.tryParse(_finalPhController.text.trim()),
-          'initialSugarLevel': _initialSugarLevelController.text.trim().isEmpty ? null : double.tryParse(_initialSugarLevelController.text.trim()),
-          'finalSugarLevel': _finalSugarLevelController.text.trim().isEmpty ? null : double.tryParse(_finalSugarLevelController.text.trim()),
+          'temperatureMax': _temperatureMaxController.text.trim().isEmpty ? null : double.tryParse(_temperatureMaxController.text.trim()),
+          'temperatureMin': _temperatureMinController.text.trim().isEmpty ? null : double.tryParse(_temperatureMinController.text.trim()),
+          'fermentationType': _fermentationTypeController.text.trim().isEmpty ? null : _fermentationTypeController.text.trim(),
+          'tankCode': _tankCodeController.text.trim().isEmpty ? null : _tankCodeController.text.trim(),
+          'startedAt': startedAt,
+          'completedBy': _completedByController.text.trim().isEmpty ? null : _completedByController.text.trim(),
           'observations': _observationsController.text.trim().isEmpty ? null : _observationsController.text.trim(),
-          'isCompleted': _isCompleted,
         };
       } else {
         // Parsear y formatear correctamente la fecha completedAt 
@@ -269,8 +267,6 @@ class _FermentationCreateAndEditPageState
         
         // Estructura para EDITAR etapa existente (incluir todos los campos requeridos)
         stageMap = {
-          'batchId': widget.wineBatchId,
-          'stageType': 'fermentation',
           'startedAt': startedAt,
           'completedAt': formattedCompletedAt,
           'completedBy': _completedByController.text.trim(),
@@ -280,8 +276,8 @@ class _FermentationCreateAndEditPageState
           'finalSugarLevel': _finalSugarLevelController.text.trim().isEmpty ? 0.0 : double.tryParse(_finalSugarLevelController.text.trim()) ?? 0.0,
           'initialPh': _initialPhController.text.trim().isEmpty ? 0.0 : double.tryParse(_initialPhController.text.trim()) ?? 0.0,
           'finalPh': _finalPhController.text.trim().isEmpty ? 0.0 : double.tryParse(_finalPhController.text.trim()) ?? 0.0,
-          'temperatureMax': _temperatureMaxController.text.trim().isEmpty ? 0.0 : double.tryParse(_temperatureMaxController.text.trim()) ?? 0.0,
           'temperatureMin': _temperatureMinController.text.trim().isEmpty ? 0.0 : double.tryParse(_temperatureMinController.text.trim()) ?? 0.0,
+          'temperatureMax': _temperatureMaxController.text.trim().isEmpty ? 0.0 : double.tryParse(_temperatureMaxController.text.trim()) ?? 0.0,
           'fermentationType': _fermentationTypeController.text.trim(),
           'tankCode': _tankCodeController.text.trim(),
           'observations': _observationsController.text.trim(),

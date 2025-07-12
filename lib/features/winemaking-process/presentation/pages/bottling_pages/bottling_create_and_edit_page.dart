@@ -242,24 +242,44 @@ class _BottlingCreateAndEditPageState extends State<BottlingCreateAndEditPage> {
     try {
       debugPrint('🍷 [BOTTLING] Iniciando guardado de embotellado - Modo: ${_isEdit ? "Editar" : "Crear"}');
       
-      final bottlingData = {
-        'batchId': widget.batchId,
-        'bottlingLine': _bottlingLineController.text.trim(),
-        'bottlesFilled': int.tryParse(_bottlesFilledController.text.trim()) ?? 0,
-        'bottleVolumeMl': int.tryParse(_bottleVolumeMlController.text.trim()) ?? 0,
-        'totalVolumeLiters': double.tryParse(_totalVolumeLitersController.text.trim()) ?? 0.0,
-        'sealType': _sealTypeController.text.trim(),
-        'code': _codeController.text.trim(),
-        'temperature': double.tryParse(_temperatureController.text.trim()) ?? 0.0,
-        'wasFiltered': _wasFiltered,
-        'wereLabelsApplied': _wereLabelsApplied,
-        'wereCapsulesApplied': _wereCapsulesApplied,
-        'startedAt': _formatDateForApi(_startedAtController.text.trim()),
-        'completedAt': _formatDateForApi(_completedAtController.text.trim()),
-        'completedBy': _completedByController.text.trim(),
-        'observations': _observationsController.text.trim(),
-        'isCompleted': _isCompleted,
-      };
+      Map<String, dynamic> bottlingData;
+      
+      if (_isEdit) {
+        // Payload para EDITAR - estructura específica para edición
+        bottlingData = {
+          'startedAt': _formatDateForApi(_startedAtController.text.trim()),
+          'completedBy': _completedByController.text.trim(),
+          'observations': _observationsController.text.trim(),
+          'isCompleted': _isCompleted,
+          'bottlingLine': _bottlingLineController.text.trim(),
+          'bottlesFilled': int.tryParse(_bottlesFilledController.text.trim()) ?? 0,
+          'bottleVolumeMl': int.tryParse(_bottleVolumeMlController.text.trim()) ?? 0,
+          'totalVolumeLiters': double.tryParse(_totalVolumeLitersController.text.trim()) ?? 0.0,
+          'sealType': _sealTypeController.text.trim(),
+          'code': _codeController.text.trim(),
+          'temperature': double.tryParse(_temperatureController.text.trim()) ?? 0.0,
+          'wasFiltered': _wasFiltered,
+          'wereLabelsApplied': _wereLabelsApplied,
+          'wereCapsulesApplied': _wereCapsulesApplied,
+        };
+      } else {
+        // Payload para CREAR - estructura específica para creación
+        bottlingData = {
+          'bottlingLine': _bottlingLineController.text.trim(),
+          'bottlesFilled': int.tryParse(_bottlesFilledController.text.trim()) ?? 0,
+          'bottleVolumeMl': int.tryParse(_bottleVolumeMlController.text.trim()) ?? 0,
+          'totalVolumeLiters': double.tryParse(_totalVolumeLitersController.text.trim()) ?? 0.0,
+          'sealType': _sealTypeController.text.trim(),
+          'code': _codeController.text.trim(),
+          'temperature': double.tryParse(_temperatureController.text.trim()) ?? 0.0,
+          'wasFiltered': _wasFiltered,
+          'wereLabelsApplied': _wereLabelsApplied,
+          'wereCapsulesApplied': _wereCapsulesApplied,
+          'startedAt': _formatDateForApi(_startedAtController.text.trim()),
+          'completedBy': _completedByController.text.trim(),
+          'observations': _observationsController.text.trim(),
+        };
+      }
 
       debugPrint('📤 [BOTTLING] Datos a enviar: $bottlingData');
 

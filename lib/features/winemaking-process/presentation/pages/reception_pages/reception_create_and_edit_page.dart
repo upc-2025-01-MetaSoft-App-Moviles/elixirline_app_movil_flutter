@@ -457,16 +457,13 @@ class _ReceptionCreateAndEditPageState extends State<ReceptionCreateAndEditPage>
           print('=== PREPARANDO DATOS PARA EDITAR ===');
           print('Estado completado: $_isCompleted');
         }
-        // Estructura para EDITAR etapa existente - incluir campos requeridos según el error
+        // Estructura para EDITAR etapa existente - incluir campos requeridos según el esquema UPDATE
         data = {
-          'batchId': widget.batchId, // ✅ Campo requerido agregado
-          'stageType': 'reception',  // ✅ Campo requerido agregado
           'startedAt': startedAt,
-          'completedAt': completedAt.isNotEmpty ? completedAt : _formatDate(DateTime.now()), // ✅ Campo requerido agregado
           'completedBy': completedBy,
           'isCompleted': _isCompleted,
           'sugarLevel': sugarLevel,
-          'pH': pHValue, // Cambié de 'Ph' a 'pH' para consistencia
+          'ph': pHValue, // Usar 'ph' en minúscula según esquema UPDATE
           'temperature': temperature,
           'quantityKg': quantityKg,
           'observations': observations,

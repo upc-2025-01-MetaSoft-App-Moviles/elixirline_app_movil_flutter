@@ -191,76 +191,52 @@ class _AgingCreateAndEditPageState extends State<AgingCreateAndEditPage> {
       String startedAt = _formatDateForApi(_startedAtController.text);
       debugPrint('📅 [AGING] Fecha inicio formateada: $startedAt');
 
-      // Construir payload base
-      Map<String, dynamic> payload = {
-        'startedAt': startedAt,
-        'completedBy': _completedByController.text.trim(),
-        'containerType': _containerTypeController.text.trim(),
-        'material': _materialController.text.trim(),
-        'containerCode': _containerCodeController.text.trim(),
-        'avgTemperature': double.tryParse(_avgTemperatureController.text) ?? 0.0,
-        'volumeLiters': double.tryParse(_volumeLitersController.text) ?? 0.0,
-        'durationMonths': int.tryParse(_durationMonthsController.text) ?? 0,
-        'frequencyDays': int.tryParse(_frequencyDaysController.text) ?? 0,
-        'refilled': int.tryParse(_refilledController.text) ?? 0,
-        'batonnage': int.tryParse(_batonnageController.text) ?? 0,
-        'rackings': int.tryParse(_rackingsController.text) ?? 0,
-        'purpose': _purposeController.text.trim(),
-        'observations': _observationsController.text.trim(),
-        'isCompleted': _isCompleted,
-      };
-
-      // Para crear: manejar completedAt solo si la etapa está marcada como completada
+      Map<String, dynamic> payload;
+      
       if (widget.initialData == null) {
+        // Estructura para CREAR nueva etapa
         debugPrint('🆕 [AGING] Creando nueva etapa de maduración');
-        
-        if (_isCompleted) {
-          // Si se marca como completada en la creación, usar fecha actual o la especificada
-          String formattedCompletedAt;
-          if (_completedAtController.text.isNotEmpty) {
-            DateTime? completedDate = _parseDate(_completedAtController.text);
-            if (completedDate != null) {
-              formattedCompletedAt = _formatDate(completedDate);
-            } else {
-              formattedCompletedAt = _formatDate(DateTime.now());
-            }
-          } else {
-            formattedCompletedAt = _formatDate(DateTime.now());
-          }
-          
-          payload['completedAt'] = formattedCompletedAt;
-          debugPrint('📅 [AGING] Fecha completado (creación): $formattedCompletedAt');
-        }
-        // Si no está completada, no incluir completedAt en el payload
-        
+        payload = {
+          'containerType': _containerTypeController.text.trim(),
+          'material': _materialController.text.trim(),
+          'containerCode': _containerCodeController.text.trim(),
+          'avgTemperature': double.tryParse(_avgTemperatureController.text) ?? 0.0,
+          'volumeLiters': double.tryParse(_volumeLitersController.text) ?? 0.0,
+          'durationMonths': int.tryParse(_durationMonthsController.text) ?? 0,
+          'frequencyDays': int.tryParse(_frequencyDaysController.text) ?? 0,
+          'refilled': int.tryParse(_refilledController.text) ?? 0,
+          'batonnage': int.tryParse(_batonnageController.text) ?? 0,
+          'rackings': int.tryParse(_rackingsController.text) ?? 0,
+          'purpose': _purposeController.text.trim(),
+          'startedAt': startedAt,
+          'completedBy': _completedByController.text.trim(),
+          'observations': _observationsController.text.trim(),
+        };
       } else {
-        // Para editar: siempre incluir completedAt
+        // Estructura para EDITAR etapa existente
         debugPrint('✏️ [AGING] Editando etapa existente');
-        
-        String formattedCompletedAt;
-        if (_isCompleted) {
-          if (_completedAtController.text.isNotEmpty) {
-            DateTime? completedDate = _parseDate(_completedAtController.text);
-            if (completedDate != null) {
-              formattedCompletedAt = _formatDate(completedDate);
-            } else {
-              formattedCompletedAt = _formatDate(DateTime.now());
-            }
-          } else {
-            formattedCompletedAt = _formatDate(DateTime.now());
-          }
-        } else {
-          // Si no está completada, usar string vacío
-          formattedCompletedAt = '';
-        }
-        
-        payload['completedAt'] = formattedCompletedAt;
-        debugPrint('📅 [AGING] Fecha completado (edición): $formattedCompletedAt');
+        payload = {
+          'startedAt': startedAt,
+          'completedBy': _completedByController.text.trim(),
+          'observations': _observationsController.text.trim(),
+          'isCompleted': _isCompleted,
+          'containerType': _containerTypeController.text.trim(),
+          'material': _materialController.text.trim(),
+          'containerCode': _containerCodeController.text.trim(),
+          'avgTemperature': double.tryParse(_avgTemperatureController.text) ?? 0.0,
+          'volumeLiters': double.tryParse(_volumeLitersController.text) ?? 0.0,
+          'durationMonths': int.tryParse(_durationMonthsController.text) ?? 0,
+          'frequencyDays': int.tryParse(_frequencyDaysController.text) ?? 0,
+          'refilled': int.tryParse(_refilledController.text) ?? 0,
+          'batonnage': int.tryParse(_batonnageController.text) ?? 0,
+          'rackings': int.tryParse(_rackingsController.text) ?? 0,
+          'purpose': _purposeController.text.trim(),
+        };
       }
 
       debugPrint('📦 [AGING] Payload final: $payload');
 
-      final AgingStageDto result;
+      AgingStageDto result;
       
       if (widget.initialData != null) {
         debugPrint('🔄 [AGING] Llamando update service');

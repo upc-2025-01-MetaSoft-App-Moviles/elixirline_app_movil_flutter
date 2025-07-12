@@ -182,44 +182,21 @@ class _ClarificationCreateAndEditPageState extends State<ClarificationCreateAndE
       if (widget.initialData == null) {
         // Estructura para CREAR nueva etapa
         stageMap = {
-          'wineBatchId': widget.batchId,
-          'startedAt': startedAt,
-          'completedBy': '', // Will be filled by backend
           'method': _methodController.text.trim(),
-          'initialTurbidityNtu': _turbidityBeforeController.text.trim().isEmpty ? 0.0 : double.tryParse(_turbidityBeforeController.text.trim()) ?? 0.0,
-          'finalTurbidityNtu': _turbidityAfterController.text.trim().isEmpty ? 0.0 : double.tryParse(_turbidityAfterController.text.trim()) ?? 0.0,
-          'wineVolumeLitres': _wineVolumeController.text.trim().isEmpty ? 0.0 : double.tryParse(_wineVolumeController.text.trim()) ?? 0.0,
+          'turbidityBeforeNtu': _turbidityBeforeController.text.trim().isEmpty ? 0.0 : double.tryParse(_turbidityBeforeController.text.trim()) ?? 0.0,
+          'turbidityAfterNtu': _turbidityAfterController.text.trim().isEmpty ? 0.0 : double.tryParse(_turbidityAfterController.text.trim()) ?? 0.0,
+          'volumeLiters': _wineVolumeController.text.trim().isEmpty ? 0.0 : double.tryParse(_wineVolumeController.text.trim()) ?? 0.0,
           'temperature': _temperatureController.text.trim().isEmpty ? 0.0 : double.tryParse(_temperatureController.text.trim()) ?? 0.0,
           'durationHours': _durationController.text.trim().isEmpty ? 0 : int.tryParse(_durationController.text.trim()) ?? 0,
+          'startedAt': startedAt,
+          'completedBy': 'Especialista en Clarificación',
           'observations': _observationsController.text.trim(),
-          'isCompleted': _isCompleted,
         };
       } else {
-        // Parsear y formatear correctamente la fecha completedAt 
-        String formattedCompletedAt = '';
-        if (widget.initialData?.completedAt != null && widget.initialData!.completedAt.isNotEmpty) {
-          try {
-            DateTime? completedDate = _parseDate(widget.initialData!.completedAt);
-            if (completedDate != null) {
-              formattedCompletedAt = _formatDate(completedDate);
-            } else {
-              formattedCompletedAt = _formatDate(DateTime.now());
-            }
-          } catch (e) {
-            debugPrint('⚠️ [CLARIFICATION] Error parseando completedAt: $e');
-            formattedCompletedAt = _formatDate(DateTime.now());
-          }
-        } else {
-          formattedCompletedAt = _formatDate(DateTime.now());
-        }
-        
-        // Estructura para EDITAR etapa existente (incluir todos los campos requeridos)
+        // Estructura para EDITAR etapa existente
         stageMap = {
-          'batchId': widget.batchId,
-          'stageType': 'clarification',
           'startedAt': startedAt,
-          'completedAt': formattedCompletedAt,
-          'completedBy': '', // Will be filled by backend
+          'completedBy': widget.initialData?.completedBy ?? 'Especialista en Clarificación',
           'isCompleted': _isCompleted,
           'method': _methodController.text.trim(),
           'initialTurbidityNtu': _turbidityBeforeController.text.trim().isEmpty ? 0.0 : double.tryParse(_turbidityBeforeController.text.trim()) ?? 0.0,

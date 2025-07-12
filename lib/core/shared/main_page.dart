@@ -1,4 +1,5 @@
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/presentation/pages/batches_pages/wine_batches_page.dart';
+import 'package:elixirline_app_movil_flutter/core/shared/test_data_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:elixirline_app_movil_flutter/core/utils/color_pallet.dart';
@@ -36,6 +37,189 @@ class _MainPageState extends State<MainPage> {
   void _navigateFromDrawer(int pageIndex) {
     Navigator.pop(context);
     setState(() => _selectedIndex = pageIndex);
+  }
+
+  /// Genera datos de prueba en el backend
+  Future<void> _generateTestData() async {
+    Navigator.pop(context); // Cerrar drawer
+    
+    int selectedBatchCount = 4; // Valor por defecto
+    
+    // Mostrar diálogo de selección de cantidad y confirmación
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.science, color: Colors.orange),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Generar Datos de Prueba',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Selecciona cuántos lotes crear:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Selector de cantidad
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButton<int>(
+                      value: selectedBatchCount,
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                      items: const [
+                        DropdownMenuItem(value: 1, child: Text('1 lote')),
+                        DropdownMenuItem(value: 2, child: Text('2 lotes')),
+                        DropdownMenuItem(value: 3, child: Text('3 lotes')),
+                        DropdownMenuItem(value: 4, child: Text('4 lotes (completo)')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedBatchCount = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Lotes que se crearán:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Lista de lotes que se crearán
+                  ...List.generate(selectedBatchCount, (index) {
+                    final lotes = [
+                      {'name': '🍇 Premium Cabernet Sauvignon 2025', 'stages': 'Completo (8/8 etapas)'},
+                      {'name': '🍇 Reserva Merlot 2025', 'stages': 'Hasta fermentación (3/8 etapas)'},
+                      {'name': '🍇 Blend Económico 2025', 'stages': 'Hasta prensado (4/8 etapas)'},
+                      {'name': '🍇 Experimental Syrah 2025', 'stages': 'Solo recepción (1/8 etapas)'},
+                    ];
+                    
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lotes[index]['name']!,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                          ),
+                          Text(
+                            '   → ${lotes[index]['stages']}',
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  
+                  const SizedBox(height: 12),
+                  const Text(
+                    '¿Desea continuar?',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, {'generate': true, 'count': selectedBatchCount}),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Generar Datos'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result?['generate'] != true) return;
+    
+    final int batchCount = result!['count'];
+    
+    // Mostrar indicador de carga
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Text('Generando $batchCount ${batchCount == 1 ? 'lote' : 'lotes'} de prueba...'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    try {
+      await TestDataGenerator.generateAndStoreTestData(batchCount: batchCount);
+      
+      if (mounted) {
+        Navigator.pop(context); // Cerrar diálogo de carga
+        
+        // Mostrar mensaje de éxito
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('🎉 $batchCount ${batchCount == 1 ? 'lote' : 'lotes'} de prueba ${batchCount == 1 ? 'generado' : 'generados'} exitosamente'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        
+        // Navegar a la página de lotes para ver los datos generados
+        setState(() => _selectedIndex = 1);
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Cerrar diálogo de carga
+        
+        // Mostrar mensaje de error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error generando datos: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
   }
 
   /// Construye un Navigator por cada pestaña
@@ -92,6 +276,16 @@ class _MainPageState extends State<MainPage> {
             leading: const Icon(Icons.history),
             title: const Text('Historial de Producción'),
             onTap: () => _navigateFromDrawer(5),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.science, color: Colors.orange),
+            title: const Text(
+              'Generar Datos de Prueba',
+              style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+            ),
+            subtitle: const Text('4 lotes con diferentes etapas'),
+            onTap: _generateTestData,
           ),
           const Divider(),
           ListTile(

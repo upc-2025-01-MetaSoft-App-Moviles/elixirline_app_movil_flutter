@@ -268,20 +268,8 @@ class _FiltrationCreateAndEditPageState
 
       if (_isEdit) {
         // Payload para EDITAR - estructura específica para edición
-        final String formattedCompletedAt = _isCompleted 
-            ? _formatDateForApi(_completedAtController.text.isNotEmpty 
-                ? _completedAtController.text 
-                : _formatDate(DateTime.now()))
-            : '';
-
-        debugPrint('🗓️ [FILTRATION] CompletedAt original: "${widget.initialData?.completedAt ?? ''}"');
-        debugPrint('🗓️ [FILTRATION] CompletedAt formateado: "$formattedCompletedAt"');
-
         filtrationMap = {
-          'batchId': widget.batchId,
-          'stageType': 'filtration',
           'startedAt': _formatDateForApi(_startedAtController.text.trim()),
-          'completedAt': formattedCompletedAt,
           'completedBy': _completedByController.text.trim(),
           'observations': _observationsController.text.trim(),
           'isCompleted': _isCompleted,
@@ -301,7 +289,6 @@ class _FiltrationCreateAndEditPageState
       } else {
         // Payload para CREAR - estructura específica para creación
         filtrationMap = {
-          'wineBatchId': widget.batchId,
           'filtrationType': _filtrationTypeController.text.trim(),
           'filterMedia': _filterMediaController.text.trim(),
           'poreMicrons': double.tryParse(_poreMicronsController.text.trim()) ?? 0.0,

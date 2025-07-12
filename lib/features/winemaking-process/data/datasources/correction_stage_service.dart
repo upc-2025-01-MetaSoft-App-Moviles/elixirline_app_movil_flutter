@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/correction_stage_dto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -30,6 +31,11 @@ class CorrectionStageService {
   }
 
   Future<CorrectionStageDto> create(String wineBatchId, Map<String, dynamic> stageData) {
+    if (kDebugMode) {
+      print('📤 ======================= Creando Correction Stage');
+      print('📤 URL: $_baseUrl/$wineBatchId/correction');
+      print('📤 Datos: $stageData');
+    }
     return http
         .post(
           Uri.parse("$_baseUrl/$wineBatchId/correction"),
@@ -37,6 +43,10 @@ class CorrectionStageService {
           body: jsonEncode(stageData),
         )
         .then((response) {
+          if (kDebugMode) {
+            print('📤 Response status: ${response.statusCode}');
+            print('📤 Response body: ${response.body}');
+          }
           if (response.statusCode == HttpStatus.created) {
             final map = jsonDecode(response.body);
             return CorrectionStageDto.fromJson(map);

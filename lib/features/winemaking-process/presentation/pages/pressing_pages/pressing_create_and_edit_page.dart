@@ -205,46 +205,20 @@ class _PressingCreateAndEditPageState extends State<PressingCreateAndEditPage> {
       if (widget.initialData == null) {
         // Estructura para CREAR nueva etapa
         stageMap = {
-          'wineBatchId': widget.batchId,
-          'startedAt': startedAt,
-          'completedBy': _completedByController.text.trim().isEmpty ? null : _completedByController.text.trim(),
           'pressType': _pressTypeController.text.trim().isEmpty ? null : _pressTypeController.text.trim(),
           'pressPressureBars': _pressPressureBarsController.text.trim().isEmpty ? null : double.tryParse(_pressPressureBarsController.text.trim()),
           'durationMinutes': _durationMinutesController.text.trim().isEmpty ? null : int.tryParse(_durationMinutesController.text.trim()),
           'pomaceKg': _pomaceKgController.text.trim().isEmpty ? null : double.tryParse(_pomaceKgController.text.trim()),
           'yieldLiters': _yieldLitersController.text.trim().isEmpty ? null : double.tryParse(_yieldLitersController.text.trim()),
           'mustUsage': _mustUsageController.text.trim().isEmpty ? null : _mustUsageController.text.trim(),
+          'startedAt': startedAt,
+          'completedBy': _completedByController.text.trim().isEmpty ? null : _completedByController.text.trim(),
           'observations': _observationsController.text.trim().isEmpty ? null : _observationsController.text.trim(),
-          'isCompleted': _isCompleted,
         };
       } else {
-        // Parsear y formatear correctamente la fecha completedAt 
-        String formattedCompletedAt = '';
-        if (widget.initialData?.completedAt != null && widget.initialData!.completedAt.isNotEmpty) {
-          try {
-            // Intentar parsear la fecha existente y convertirla al formato correcto
-            DateTime? completedDate = _parseDate(widget.initialData!.completedAt);
-            if (completedDate != null) {
-              formattedCompletedAt = _formatDate(completedDate);
-            } else {
-              // Si no se puede parsear, usar la fecha actual
-              formattedCompletedAt = _formatDate(DateTime.now());
-            }
-          } catch (e) {
-            debugPrint('⚠️ [PRESSING] Error parseando completedAt: $e');
-            formattedCompletedAt = _formatDate(DateTime.now());
-          }
-        } else {
-          // Si no hay fecha de completado, usar la fecha actual
-          formattedCompletedAt = _formatDate(DateTime.now());
-        }
-        
         // Estructura para EDITAR etapa existente (incluir todos los campos requeridos)
         stageMap = {
-          'batchId': widget.batchId,
-          'stageType': 'pressing',
           'startedAt': startedAt,
-          'completedAt': formattedCompletedAt,
           'completedBy': _completedByController.text.trim(),
           'isCompleted': _isCompleted,
           'pressType': _pressTypeController.text.trim(),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:elixirline_app_movil_flutter/features/winemaking-process/data/models/pressing_stage_dto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 
@@ -30,6 +31,11 @@ class PressingStageService {
   }
 
   Future<PressingStageDto> create(String wineBatchId, Map<String, dynamic> stageData) {
+    if (kDebugMode) {
+      print('📤 ======================= Creando Pressing Stage');
+      print('📤 URL: $_baseUrl/$wineBatchId/pressing');
+      print('📤 Datos: $stageData');
+    }
     return http
         .post(
           Uri.parse("$_baseUrl/$wineBatchId/pressing"),
@@ -37,6 +43,10 @@ class PressingStageService {
           body: jsonEncode(stageData),
         )
         .then((response) {
+          if (kDebugMode) {
+            print('📤 Response status: ${response.statusCode}');
+            print('📤 Response body: ${response.body}');
+          }
           if (response.statusCode == HttpStatus.created) {
             final map = jsonDecode(response.body);
             return PressingStageDto.fromJson(map);
